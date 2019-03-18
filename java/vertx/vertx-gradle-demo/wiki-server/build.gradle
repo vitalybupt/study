@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    maven {url 'http://nexus.openqa.org/content/repositories/releases/'}
+}
+
+/*
+dependencies {
+    implementation "io.vertx:vertx-core:${rootProject.versions.vertx}"
+}
+*/
+mainClassName = 'io.vitaly.wiki.Launcher'
+def mainVerticleName = 'io.vitaly.vertx.MainVerticle'
+
+jar {
+    manifest {
+        attributes(
+                "Main-Class": mainClassName,
+                "Main-Verticle": mainVerticleName
+        )
+    }
+}
+
