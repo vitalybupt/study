@@ -15,11 +15,9 @@ ext.versions = [
 subprojects {
     repositories {
 	maven{
-	    maven {url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+	    url 'http://maven.aliyun.com/nexus/content/groups/public/'
         }
         mavenCentral()
         jcenter()
     }
 }
-
-
