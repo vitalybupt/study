@@ -3,12 +3,17 @@ plugins {
     id 'application'
 }
 
+apply plugin: 'com.github.johnrengelman.shadow'
+
 dependencies {
     implementation "io.vertx:vertx-core:${rootProject.versions.vertx}"
+    compile "io.vertx:vertx-jdbc-client:${rootProject.versions.vertx}"
+    runtime "org.hsqldb:hsqldb:2.0.0"
 }
 
 mainClassName = 'io.vitaly.wiki.Launcher'
 def mainVerticleName = 'io.vitaly.vertx.MainVerticle'
+
 
 jar {
     manifest {
