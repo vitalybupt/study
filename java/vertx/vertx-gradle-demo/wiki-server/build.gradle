@@ -7,8 +7,12 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
     implementation "io.vertx:vertx-core:${rootProject.versions.vertx}"
-    compile "io.vertx:vertx-jdbc-client:${rootProject.versions.vertx}"
-    compile "io.vertx:vertx-rx-java2:${rootProject.versions.vertx}"
+    implementation "io.vertx:vertx-service-proxy:${rootProject.versions.vertx}"
+    implementation "org.slf4j:slf4j-api:1.7.26"
+    implementation "io.vertx:vertx-jdbc-client:${rootProject.versions.vertx}"
+    implementation "io.vertx:vertx-rx-java2:${rootProject.versions.vertx}"
+    implementation "com.github.rjeschke:txtmark:0.13"
+    annotationProcessor "io.vertx:vertx-service-proxy:${rootProject.versions.vertx}"
     annotationProcessor "io.vertx:vertx-lang-js-gen:${rootProject.versions.vertx}"
     annotationProcessor "io.vertx:vertx-rx-java2-gen:${rootProject.versions.vertx}" 
     annotationProcessor "io.vertx:vertx-codegen:${rootProject.versions.vertx}"
@@ -30,8 +34,9 @@ jar {
 
 task annotationProcessing(type: JavaCompile, group: 'build') { // codegen
     source = sourceSets.main.java
+    description 'Generates Vertx js and rxjava shims'
     options.annotationProcessorPath = configurations.annotationProcessor
-    classpath = configurations.compile + configurations.compileOnly
+    classpath = configurations.compileClasspath
     destinationDir = project.file('src/main/generated')
     options.compilerArgs = [
 	"-proc:only",

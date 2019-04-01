@@ -15,26 +15,13 @@
  * limitations under the License.
  */
 
-package io.vitaly.vertx;
-
-import io.reactivex.Single;
-import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Future;
-import io.vertx.reactivex.core.AbstractVerticle;
+package io.vitaly.vertx.database;
 
 /**
  * @author <a href="https://julien.ponge.org/">Julien Ponge</a>
  */
-public class MainVerticle extends AbstractVerticle {
-
-  @Override
-  public void start(Future<Void> startFuture) throws Exception {
-
-    Single<String> dbVerticleDeployment = vertx.rxDeployVerticle("io.vitaly.vertx.database.WikiDatabaseVerticle");
-
-    DeploymentOptions opts = new DeploymentOptions().setInstances(2);
-    dbVerticleDeployment
-      .flatMap(id -> vertx.rxDeployVerticle("io.vitaly.vertx.http.HttpServerVerticle", opts))
-      .subscribe(id -> startFuture.complete(), startFuture::fail);
-  }
+public enum ErrorCodes {
+  NO_ACTION_SPECIFIED,
+  BAD_ACTION,
+  DB_ERROR
 }

@@ -15,26 +15,10 @@
  * limitations under the License.
  */
 
-package io.vitaly.vertx;
-
-import io.reactivex.Single;
-import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Future;
-import io.vertx.reactivex.core.AbstractVerticle;
-
 /**
  * @author <a href="https://julien.ponge.org/">Julien Ponge</a>
  */
-public class MainVerticle extends AbstractVerticle {
+@ModuleGen(groupPackage = "io.vitaly.vertx.database", name = "wiki-database")
+package io.vitaly.vertx.database;
 
-  @Override
-  public void start(Future<Void> startFuture) throws Exception {
-
-    Single<String> dbVerticleDeployment = vertx.rxDeployVerticle("io.vitaly.vertx.database.WikiDatabaseVerticle");
-
-    DeploymentOptions opts = new DeploymentOptions().setInstances(2);
-    dbVerticleDeployment
-      .flatMap(id -> vertx.rxDeployVerticle("io.vitaly.vertx.http.HttpServerVerticle", opts))
-      .subscribe(id -> startFuture.complete(), startFuture::fail);
-  }
-}
+import io.vertx.codegen.annotations.ModuleGen;
