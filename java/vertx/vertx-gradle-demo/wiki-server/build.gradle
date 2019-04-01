@@ -8,6 +8,10 @@ apply plugin: 'com.github.johnrengelman.shadow'
 dependencies {
     implementation "io.vertx:vertx-core:${rootProject.versions.vertx}"
     compile "io.vertx:vertx-jdbc-client:${rootProject.versions.vertx}"
+    compile "io.vertx:vertx-rx-java2:${rootProject.versions.vertx}"
+    annotationProcessor "io.vertx:vertx-lang-js-gen:${rootProject.versions.vertx}"
+    annotationProcessor "io.vertx:vertx-rx-java2-gen:${rootProject.versions.vertx}" 
+    annotationProcessor "io.vertx:vertx-codegen:${rootProject.versions.vertx}"
     runtime "org.hsqldb:hsqldb:2.0.0"
 }
 
@@ -24,3 +28,29 @@ jar {
     }
 }
 
+task annotationProcessing(type: JavaCompile, group: 'build') { // codegen
+    source = sourceSets.main.java
+    options.annotationProcessorPath = configurations.annotationProcessor
+    classpath = configurations.compile + configurations.compileOnly
+    destinationDir = project.file('src/main/generated')
+    options.compilerArgs = [
+	"-proc:only",
+	"-processor", "io.vertx.codegen.CodeGenProcessor",
+	"-Acodegen.output=${project.projectDir}/src/main"
+    ]
+}
+
+compileJava {
+    targetCompatibility = 1.8
+    sourceCompatibility = 1.8
+    
+    dependsOn annotationProcessing
+}
+
+sourceSets {
+  main {
+	java {
+	    srcDirs += 'src/main/generated'
+	}
+    }
+}
