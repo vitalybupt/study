@@ -10,7 +10,7 @@ jacoco {
 }
 
 ext.versions = [
-    "vertx": "3.6.3",
+    "vertx": "3.7.0",
 ]
 
 subprojects {
