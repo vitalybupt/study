@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <head>
+    <title>My website</title>
+  </head>
+  <script type="text/javascript" src="bundle.js"></script>
+  <body>
+    <div id="app"></div>
+  </body>
+
+  <script>
+    document.getElementById('getData').addEventListener('click', getData);
+    document.getElementById('getAPI').addEventListener('click', getAPI);
+    
+
+    function getData(){
+    // code to execte
+    fetch('sampleUser.json')
+    .then(function (res) {
+    return res.json();
+    })
+    .then(function (data) {
+    let result = `<h2> User Info From sampleUser.json </h2>`;
+    data.forEach((user) => {
+    const { id, name, email } = user
+    result +=
+    `<div>
+      <h5> User ID: ${id} </h5>
+      <ul class="w3-ul">
+        <li> User Name : ${name}</li>
+        <li> User Email: ${email} </li>
+      </ul>
+    </div>`;
+
+    document.getElementById('result').innerHTML = result;
+    });
+    })
+    }
+    
+    function getAPI(){
+    // code to execte
+    //Using ES6 arrow function 
+    fetch('https://jsonplaceholder.typicode.com/users')
+    .then((res) => { return res.json() })
+    .then((data) => {
+    let result = `<h2> Random User Info From Jsonplaceholder API</h2>`;
+    data.forEach((user) => {
+    const { id, name, email, address: { city, street } } = user
+    result +=
+    `<div>
+      <h5> User ID: ${id} </h5>
+      <ul class="w3-ul">
+        <li> User Full Name : ${name}</li>
+        <li> User Email : ${email} </li>
+        <li> User Address : ${city}, ${street} </li>
+      </ul>
+    </div>`;
+    document.getElementById('result').innerHTML = result;
+    });
+    })
+  </script> 
+</html>
