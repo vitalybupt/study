@@ -18,6 +18,10 @@
 // tag::module-decl[]
 'use strict';
 
+import 'bootstra';
+import 'font-awesome';
+import 'angular';
+
 angular.module("wikiApp", [])
   .controller("WikiController", ["$scope", "$http", "$timeout", function ($scope, $http, $timeout) {
 
