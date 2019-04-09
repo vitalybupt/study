@@ -31,3 +31,4 @@ pluginManagement {
 rootProject.name = 'vertx-demo'
 
 include 'wiki-server'
+include 'wiki-client'

@@ -1,0 +1,5 @@
+task webpack(type: Exec, group: 'build') {
+    description 'running Webpack to bundle client-size assets'
+    commandLine "$projectDir/node_modules/.bin/webpack", "app/wiki.js", "$buildDir/js/bundle.js"
+}
+
