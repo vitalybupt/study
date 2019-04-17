@@ -26,7 +26,6 @@ const Buttons = props =>
 
 {/*component of editor*/}
 const Editor = props =>
-      <React.Fragment>
         <Form>
           <Form.Group>
             <Form.Label>Markdown</Form.Label>
@@ -36,24 +35,25 @@ const Editor = props =>
             <Form.Label>Name</Form.Label>
             <Form.Control id="pageName" as="input" type="text"></Form.Control>
           </Form.Group>
-        </Form>
-        <Button variant="secondary"><i className="fa fa-pencil"
-                                    aria-hidden="true"></i>Save</Button>
+        </Form>;
+
+const Wiki = props =>
+      <React.Fragment>
+        <Buttons/>
+        <Container>
+          <Row>
+            <Col></Col>
+            <Col>
+              <Editor/>
+              <Button variant="secondary"><i className="fa fa-pencil"
+                                             aria-hidden="true"></i>Save</Button>
+            </Col>
+          </Row>
+        </Container>
       </React.Fragment>;
 
-
-export default class Wiki extends Component {
+export default class WikiContainer extends Component {
     render() {
-	return (
-            <React.Fragment>
-              <Buttons/>
-              <Container>
-                <Row>
-                  <Col></Col>
-                  <Col><Editor/></Col>
-                </Row>
-              </Container>
-            </React.Fragment>
-        );
+	return <Wiki/>;
     };
 }
