@@ -2,8 +2,11 @@ import React, { Component } from 'react';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
-import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Form from 'react-bootstrap/Form';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 import "popper.js/dist/popper.min.js";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -15,45 +18,42 @@ const Buttons = props =>
           <DropdownButton id="dropdown-basic" title={<span><i class="fa fa-file-text" aria-hidden="true"></i> Pages</span>} variant="secondary">
             <Dropdown.Item href="#">page </Dropdown.Item>
           </DropdownButton>
-          <ButtonGroup className="mr-2 float-right">
-            <Button variant="secondary"><i class="fa fa-refresh" aria-hidden="true"></i> Reload</Button>
-            <Button variant="secondary"><i class="fa fa-plus-square" aria-hidden="true"></i> New Page</Button>
-            <Button variant="secondary" className="float-right"><i class="fa fa-trash" aria-hidden="true"></i> Delete Page</Button>
-          </ButtonGroup>
+          <Button variant="secondary"><i class="fa fa-refresh" aria-hidden="true"></i> Reload</Button>
+          <Button variant="secondary"><i class="fa fa-plus-square" aria-hidden="true"></i> New Page</Button>
         </ButtonGroup>
+          <Button variant="secondary" className="float-right"><i class="fa fa-trash" aria-hidden="true"></i> Delete Page</Button>
       </React.Fragment>;
 
 {/*component of editor*/}
 const Editor = props =>
       <React.Fragment>
-                  <form>
-                    <div className="form-group">
-                      <label for="markdown">Markdown</label>
-                      <textarea id="markdown" class="form-control" rows="25"></textarea>
-                    </div>
-                    <div class="form-group">
-                      <label for="pageName">Name</label>
-                      <input class="form-control" type="text" value="" id="pageName" ng-model="pageName" ng-disabled="pageExists"/>
-                    </div>
-                    <button type="button" class="btn btn-secondary"><i class="fa fa-pencil"
-                                                                       aria-hidden="true"></i> Save
-                    </button>
-                  </form>
+        <Form>
+          <Form.Group>
+            <Form.Label>Markdown</Form.Label>
+            <Form.Control rows="25" as="textarea"></Form.Control>
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>Name</Form.Label>
+            <Form.Control id="pageName" as="input" type="text"></Form.Control>
+          </Form.Group>
+        </Form>
+        <Button variant="secondary"><i className="fa fa-pencil"
+                                    aria-hidden="true"></i>Save</Button>
       </React.Fragment>;
 
 
 export default class Wiki extends Component {
     render() {
 	return (
-            <div class="container">
-              <div class="row">
-                <div class="col-md-12">
+            <div className="container">
+              <div className="row">
+                <div className="col-md-12">
                   <Buttons/>
                 </div>
             </div>
-              <div class="row">
-                <div class="col-md-6" id="rendering"></div>
-                <div class="col-md-6">
+              <div className="row">
+                <div className="col-md-6" id="rendering"></div>
+                <div className="col-md-6">
                   <Editor/>
                 </div>
               </div>
