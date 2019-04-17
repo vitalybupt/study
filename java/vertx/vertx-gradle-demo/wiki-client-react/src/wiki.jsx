@@ -45,19 +45,15 @@ const Editor = props =>
 export default class Wiki extends Component {
     render() {
 	return (
-            <div className="container">
-              <div className="row">
-                <div className="col-md-12">
-                  <Buttons/>
-                </div>
-            </div>
-              <div className="row">
-                <div className="col-md-6" id="rendering"></div>
-                <div className="col-md-6">
-                  <Editor/>
-                </div>
-              </div>
-            </div>
+            <React.Fragment>
+              <Buttons/>
+              <Container>
+                <Row>
+                  <Col></Col>
+                  <Col><Editor/></Col>
+                </Row>
+              </Container>
+            </React.Fragment>
         );
     };
 }
