@@ -69,7 +69,7 @@ public class HttpServerVerticle extends AbstractVerticle {
     Set<String> allowedHeaders = new HashSet<>();
     allowedHeaders.add("Access-Control-Allow-Origin");
     //router.route().handler(CorsHandler.create("*").allowedHeaders(allowedHeaders));
-    router.route().handler(CorsHandler.create("http://192.168.56.101:3000").allowedHeaders(allowedHeaders));
+    router.route().handler(CorsHandler.create("http://169.254.0.53:3000").allowedHeaders(allowedHeaders));
     
     // tag::static-assets[]
     router.get("/app/*").handler(StaticHandler.create().setCachingEnabled(false)); // <1> <2>
