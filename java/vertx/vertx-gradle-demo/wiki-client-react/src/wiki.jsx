@@ -16,7 +16,9 @@ const Buttons = props =>
       <React.Fragment>
         <ButtonGroup>
           <DropdownButton id="dropdown-basic" title={<span><i className="fa fa-file-text" aria-hidden="true"></i> Pages</span>} variant="secondary">
-            <Dropdown.Item href="#">page </Dropdown.Item>
+            { props.pages.map( page => (
+                <Dropdown.Item href="#">page</Dropdown.Item>
+            ) )}
           </DropdownButton>
           <Button variant="secondary"><i className="fa fa-refresh" aria-hidden="true"></i> Reload</Button>
           <Button variant="secondary"><i className="fa fa-plus-square" aria-hidden="true"></i> New Page</Button>
@@ -42,7 +44,7 @@ const Wiki = props =>
         <Container>
           <Row>
             <Col>
-              <Buttons/>
+              <Buttons pages={props.pages}/>
             </Col>
           </Row>
           <Row>
@@ -57,7 +59,15 @@ const Wiki = props =>
       </React.Fragment>;
 
 export default class WikiContainer extends Component {
+    state = { pages:[] };
+
+    componentDidMount() {
+        fetch('http://192.168.56.101:8080/api/pages')
+            .then(response => response.json())
+            .then(function(data){console.log("get data", data); return data});
+    };
+  
     render() {
-	return <Wiki/>;
+	return <Wiki pages={this.state.pages}/>;
     };
 }

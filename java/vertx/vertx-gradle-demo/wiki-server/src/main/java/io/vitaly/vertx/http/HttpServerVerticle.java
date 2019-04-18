@@ -31,11 +31,14 @@ import io.vertx.reactivex.ext.web.handler.BodyHandler;
 import io.vertx.reactivex.ext.web.handler.CookieHandler;
 import io.vertx.reactivex.ext.web.handler.SessionHandler;
 import io.vertx.reactivex.ext.web.handler.StaticHandler;
+import io.vertx.reactivex.ext.web.handler.CorsHandler;
 import io.vertx.reactivex.ext.web.sstore.LocalSessionStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * @author <a href="https://julien.ponge.org/">Julien Ponge</a>
@@ -63,6 +66,11 @@ public class HttpServerVerticle extends AbstractVerticle {
     router.route().handler(BodyHandler.create());
     router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)));
 
+    Set<String> allowedHeaders = new HashSet<>();
+    allowedHeaders.add("Access-Control-Allow-Origin");
+    //router.route().handler(CorsHandler.create("*").allowedHeaders(allowedHeaders));
+    router.route().handler(CorsHandler.create("http://192.168.56.101:3000").allowedHeaders(allowedHeaders));
+    
     // tag::static-assets[]
     router.get("/app/*").handler(StaticHandler.create().setCachingEnabled(false)); // <1> <2>
     router.get("/").handler(context -> context.reroute("/app/index.html"));
