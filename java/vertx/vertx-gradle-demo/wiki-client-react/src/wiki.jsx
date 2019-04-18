@@ -15,13 +15,13 @@ import "font-awesome/css/font-awesome.css";
 const Buttons = props =>
       <React.Fragment>
         <ButtonGroup>
-          <DropdownButton id="dropdown-basic" title={<span><i class="fa fa-file-text" aria-hidden="true"></i> Pages</span>} variant="secondary">
+          <DropdownButton id="dropdown-basic" title={<span><i className="fa fa-file-text" aria-hidden="true"></i> Pages</span>} variant="secondary">
             <Dropdown.Item href="#">page </Dropdown.Item>
           </DropdownButton>
-          <Button variant="secondary"><i class="fa fa-refresh" aria-hidden="true"></i> Reload</Button>
-          <Button variant="secondary"><i class="fa fa-plus-square" aria-hidden="true"></i> New Page</Button>
+          <Button variant="secondary"><i className="fa fa-refresh" aria-hidden="true"></i> Reload</Button>
+          <Button variant="secondary"><i className="fa fa-plus-square" aria-hidden="true"></i> New Page</Button>
         </ButtonGroup>
-          <Button variant="secondary" className="float-right"><i class="fa fa-trash" aria-hidden="true"></i> Delete Page</Button>
+          <Button variant="secondary" className="float-right"><i className="fa fa-trash" aria-hidden="true"></i> Delete Page</Button>
       </React.Fragment>;
 
 {/*component of editor*/}
@@ -39,8 +39,12 @@ const Editor = props =>
 
 const Wiki = props =>
       <React.Fragment>
-        <Buttons/>
         <Container>
+          <Row>
+            <Col>
+              <Buttons/>
+            </Col>
+          </Row>
           <Row>
             <Col></Col>
             <Col>
