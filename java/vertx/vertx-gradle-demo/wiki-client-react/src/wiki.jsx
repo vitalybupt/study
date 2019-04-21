@@ -17,8 +17,8 @@ const Buttons = ({pages}) =>
       <React.Fragment>
         <ButtonGroup>
           <DropdownButton id="dropdown-basic" title={<span><i className="fa fa-file-text" aria-hidden="true"></i> Pages</span>} variant="secondary">
-            { Object.keys(pages).map( page_id => (
-                <Dropdown.Item href="#">{page_id}</Dropdown.Item>
+            { Object.keys(pages).map( (page_id, i) => (
+                <Dropdown.Item key={i} href="#">{page_id}</Dropdown.Item>
             ) )}
           </DropdownButton>
           <Button variant="secondary"><i className="fa fa-refresh" aria-hidden="true"></i> Reload</Button>
@@ -50,7 +50,7 @@ Editor.propTypes = {
     handleInput : PropTypes.func
 };
 
-const Wiki = ({pages, rendering, markdown, handleInput}) =>
+const Wiki = ({pages, preview, markdown, handleInput}) =>
       <React.Fragment>
         <Container>
           <Row>
@@ -59,7 +59,7 @@ const Wiki = ({pages, rendering, markdown, handleInput}) =>
             </Col>
           </Row>
           <Row>
-            <Col>{rendering}</Col>
+            <Col><div dangerouslySetInnerHTML={{__html : preview}}/></Col>
             <Col>
               <Editor markdown={markdown} handleInput={handleInput}/>
               <Button variant="secondary"><i className="fa fa-pencil"
@@ -69,24 +69,48 @@ const Wiki = ({pages, rendering, markdown, handleInput}) =>
         </Container>
       </React.Fragment>;
 
-export default class WikiContainer extends Component {
-    
-    state = { pages: {"editor":{"author":"a"}},
-              markdown: ''};
+Wiki.propTypes = {
+    pages : PropTypes.object,
+    markdown : PropTypes.string,
+    handleInput : PropTypes.func
+}
 
+export default class WikiContainer extends Component {
+    markdownRenderingPromise = null;
+    
+    state = {
+        pages: {},
+        markdown: '',
+        preview : ''
+    };
+    
     handleInput(value) {
-        this.setState({markdown:value});
-        console.log(this.state.markdown);
+        this.setState({markdown:value.target.value});
+
+        if (this.markdownRenderingPromise !== null) {
+            clearTimeout(this.markdownRenderingPromise);  // <3>
+        };
+
+        this.markdownRenderingPromise = setTimeout(function() {
+            this.markdownRenderingPromise = null;
+            console.log(this.state.markdown);
+            fetch('http://192.168.56.101:8080/app/markdown', {
+                method: 'POST',
+                body : this.state.markdown
+            })
+                .then(response => response.text())
+                .then(data => this.setState({preview : data}));
+        }.bind(this), 300);
     }
 
     componentDidMount() {
-        fetch('http://169.254.0.53:8080/api/pages')
-            .then(response => response.json());
+        fetch('http://192.168.56.101:8080/api/pages')
+            .then(response => response.json())
+            .then(data => this.setState({pages : data}));
     };
   
     render() {
-        Object.keys(this.state.pages).map( page_id => (console.log(page_id)));
-	return <Wiki rendering={this.state.markdown} pages={this.state.pages}
+	return <Wiki preview={this.state.preview} pages={this.state.pages}
                      handleInput={this.handleInput.bind(this)}/>;
     };
 }
