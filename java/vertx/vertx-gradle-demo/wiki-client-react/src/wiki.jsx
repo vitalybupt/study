@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import PropTypes from "prop-types";
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -13,34 +13,49 @@ import "popper.js/dist/popper.min.js";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "font-awesome/css/font-awesome.css";
 
-const Buttons = ({pages, handleLoadPage, handleLoadPages, handleNewPage}) =>
-      <React.Fragment>
-        <ButtonGroup>
-          <DropdownButton id="dropdown-basic" title={<span><i className="fa fa-file-text" aria-hidden="true"></i> Pages</span>} variant="secondary">
-            { pages.map( (page, i) => (
-                <Dropdown.Item key={i} href="#" onClick={()=>handleLoadPage(page.id)}>{page.name}</Dropdown.Item>
-            ) )}
-          </DropdownButton>
-          <Button variant="secondary"><i className="fa fa-refresh" aria-hidden="true" onClick={()=>handleLoadPages()}></i> Reload</Button>
-          <Button variant="secondary"><i className="fa fa-plus-square" aria-hidden="true" onClick={()=>handleNewPage()}></i> New Page</Button>
-        </ButtonGroup>
-          <Button variant="secondary" className="float-right"><i className="fa fa-trash" aria-hidden="true"></i> Delete Page</Button>
-      </React.Fragment>;
+function Buttons({handleLoadPage, handleNewPage}) {
+    const [pages, setPages] = useState([]);
+    const [trigger, setTrigger] = useState('+');
+    
+    useEffect(()=> {
+        fetch('http://192.168.56.101:8080/api/pages')
+            .then(function(response){
+                if(!response.ok){
+                    throw Error(response.statueText);
+                };
+                return response;
+            })
+            .then(response => response.json())
+            .then( data => setPages(data.pages))
+            .catch(error => console.log(error));
+    }, [trigger]);
+
+    return (<React.Fragment>
+             <ButtonGroup>
+               <DropdownButton id="dropdown-basic" title={<span><i className="fa fa-file-text" aria-hidden="true"></i> Pages</span>} variant="secondary">
+                 { pages.map( (page, i) => (
+                     <Dropdown.Item key={i} href="#" onClick={()=>handleLoadPage(page.id)}>{page.name}</Dropdown.Item>
+                 ) )}
+               </DropdownButton>
+               <Button variant="secondary"><i className="fa fa-refresh" aria-hidden="true" onClick={()=>setTrigger(trigger === '+' ? '-' : '+')}></i> Reload</Button>
+               <Button variant="secondary"><i className="fa fa-plus-square" aria-hidden="true" onClick={()=>handleNewPage()}></i> New Page</Button>
+             </ButtonGroup>
+             <Button variant="secondary" className="float-right"><i className="fa fa-trash" aria-hidden="true"></i> Delete Page</Button>
+            </React.Fragment>);
+};
 
 Buttons.propTypes = {
-    pages: PropTypes.array,
     handleLoadPage : PropTypes.func,
-    handleLoadPages : PropTypes.func,
     handleNewPage : PropTypes.func,
 };
 
 {/*component of editor*/}
-const Editor = ({pageName, markDown, handleInput}) =>
+const Editor = ({pageName, markdown, handleInput}) =>
         <Form>
           <Form.Group>
             <Form.Label>Markdown</Form.Label>
             <Form.Control rows="25" as="textarea"
-                          value={markDown} onChange={handleInput}></Form.Control>
+                          value={markdown} onChange={handleInput}></Form.Control>
           </Form.Group>
           <Form.Group>
             <Form.Label>Name</Form.Label>
@@ -53,35 +68,6 @@ Editor.propTypes = {
     handleInput : PropTypes.func
 };
 
-const Wiki = ({pages, handleLoadPage, handleLoadPages, handleNewPage, preview, markdown, handleInput}) =>
-      <React.Fragment>
-        <Container>
-          <Row>
-            <Col>
-              <Buttons pages={pages} handleLoadPage={handleLoadPage} handleLoadPages={handleLoadPages} handleNewPage={handleNewPage}/>
-            </Col>
-          </Row>
-          <Row>
-            <Col><div dangerouslySetInnerHTML={{__html : preview}}/></Col>
-            <Col>
-              <Editor markdown={markdown} handleInput={handleInput}/>
-              <Button variant="secondary"><i className="fa fa-pencil"
-                                             aria-hidden="true"></i>Save</Button>
-            </Col>
-          </Row>
-        </Container>
-      </React.Fragment>;
-
-Wiki.propTypes = {
-    pages : PropTypes.array,
-    handleLoadPage : PropTypes.func,
-    handleLoadPages : PropTypes.func,
-    handleNewPage : PropTypes.func,
-    
-    markdown : PropTypes.string,
-    handleInput : PropTypes.func
-}
-
 export default class WikiContainer extends Component {
     markdownRenderingPromise = null;
     DEFAULT_PAGENAME = "Example page";
@@ -93,7 +79,6 @@ export default class WikiContainer extends Component {
             name : this.DEFAULT_PAGENAME,
             markdown : this.DEFAULT_MARKDOWN
         },
-        pages: [],
         preview : ''
     };
     
@@ -137,20 +122,6 @@ export default class WikiContainer extends Component {
             .catch( error => console.log(error, "when loading page:",pageId));
     };
 
-    loadPages() {
-        console.log("load pages");
-        fetch('http://192.168.56.101:8080/api/pages')
-            .then(function(response){
-                if(!response.ok){
-                    throw Error(response.statueText);
-                };
-                return response;
-            })
-            .then(response => response.json())
-            .then( data => this.setState({pages : data.pages}))
-            .catch(error => console.log(error));
-    };
-
     newPage() {
         this.setState({
             currentPage : {
@@ -163,12 +134,25 @@ export default class WikiContainer extends Component {
         console.log("enter newpage", this.state.currentPage);
     };
     
-    componentDidMount() {
-        this.loadPages();
-    };
-  
     render() {
-	return <Wiki pages={this.state.pages} handleLoadPage={this.loadPage.bind(this)} handleLoadPages={this.loadPages.bind(this)} handleNewPage={this.newPage.bind(this)}
-                     preview={this.state.preview} markdown={this.state.currentPage.markdown} handleInput={this.handleInput.bind(this)}/>;
+        return (
+            <React.Fragment>
+              <Container>
+                <Row>
+                  <Col>
+                    <Buttons handleLoadPage={this.loadPage.bind(this)} handleNewPage={this.newPage.bind(this)}/>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col><div dangerouslySetInnerHTML={{__html : this.state.preview}}/></Col>
+                  <Col>
+                    <Editor markdown={this.state.currentPage.markdown} handleInput={this.handleInput.bind(this)}/>
+                    <Button variant="secondary"><i className="fa fa-pencil"
+                                                   aria-hidden="true"></i>Save</Button>
+                  </Col>
+                </Row>
+              </Container>
+            </React.Fragment>
+        );
     };
 }
