@@ -96,7 +96,6 @@ export default class WikiContainer extends Component {
 
         this.markdownRenderingPromise = setTimeout(function() {
             this.markdownRenderingPromise = null;
-            console.log(this.state.currentPage.markdown);
             fetch('http://192.168.56.101:8080/app/markdown', {
                 method: 'POST',
                 body : this.state.currentPage.markdown
@@ -107,7 +106,6 @@ export default class WikiContainer extends Component {
     };
 
     loadPage(pageId) {
-        console.log("load page:", pageId);
         fetch("http://192.168.56.101:8080/api/pages/" + pageId)
             .then(function(response) {
                 if (!response.ok) {
@@ -131,9 +129,44 @@ export default class WikiContainer extends Component {
             },
             preview : ''
         });
-        console.log("enter newpage", this.state.currentPage);
     };
-    
+
+    save(page) {
+        var payload;
+        const {pageId, name, markdown} = page;
+        /* create new page*/
+        if (pageId === undefined) {
+            payload = {
+                "name": name,
+                "markdown": markdown
+            };
+            fetch("http://192.168.56.101:8080/api/pages", {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(function(response) {
+                    if (!response.ok)
+                        throw Error(response.statusText);
+                })
+                .catch(error => console.log(error, "when create new page", name));
+        } else {
+            payload = {
+                "markdown": markdown
+            };
+            fetch("http://192.168.56.101:8080/api/pages/" + pageId, {
+                method: "PUT",
+                body: payload})
+                .then(response => {
+                    if(!response.ok())
+                        throw Error(response.statusText);
+                })
+                .catch(error => console.log(error));
+        };
+      }
+
     render() {
         return (
             <React.Fragment>
@@ -147,7 +180,7 @@ export default class WikiContainer extends Component {
                   <Col><div dangerouslySetInnerHTML={{__html : this.state.preview}}/></Col>
                   <Col>
                     <Editor markdown={this.state.currentPage.markdown} handleInput={this.handleInput.bind(this)}/>
-                    <Button variant="secondary"><i className="fa fa-pencil"
+                    <Button variant="secondary" onClick={()=>this.save(this.state.currentPage)}><i className="fa fa-pencil"
                                                    aria-hidden="true"></i>Save</Button>
                   </Col>
                 </Row>
