@@ -18,7 +18,7 @@ function Buttons({handleLoadPage, handleNewPage}) {
     const [trigger, setTrigger] = useState('+');
     
     useEffect(()=> {
-        fetch('http://192.168.56.101:8080/api/pages')
+        fetch('/api/pages')
             .then(function(response){
                 if(!response.ok){
                     throw Error(response.statueText);
@@ -96,7 +96,7 @@ export default class WikiContainer extends Component {
 
         this.markdownRenderingPromise = setTimeout(function() {
             this.markdownRenderingPromise = null;
-            fetch('http://192.168.56.101:8080/app/markdown', {
+            fetch('/app/markdown', {
                 method: 'POST',
                 body : this.state.currentPage.markdown
             })
@@ -106,7 +106,7 @@ export default class WikiContainer extends Component {
     };
 
     loadPage(pageId) {
-        fetch("http://192.168.56.101:8080/api/pages/" + pageId)
+        fetch("/api/pages/" + pageId)
             .then(function(response) {
                 if (!response.ok) {
                     throw Error(response.statusText);
@@ -140,7 +140,7 @@ export default class WikiContainer extends Component {
                 "name": name,
                 "markdown": markdown
             };
-            fetch("http://192.168.56.101:8080/api/pages", {
+            fetch("/api/pages", {
                 method: 'POST',
                 body: JSON.stringify(payload),
                 headers: {
@@ -156,7 +156,7 @@ export default class WikiContainer extends Component {
             payload = {
                 "markdown": markdown
             };
-            fetch("http://192.168.56.101:8080/api/pages/" + pageId, {
+            fetch("/api/pages/" + pageId, {
                 method: "PUT",
                 body: payload})
                 .then(response => {

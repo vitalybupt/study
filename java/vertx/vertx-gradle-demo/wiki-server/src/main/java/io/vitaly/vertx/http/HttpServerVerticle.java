@@ -1,20 +1,3 @@
-/*
- *  Copyright (c) 2017 Red Hat, Inc. and/or its affiliates.
- *  Copyright (c) 2017 INSA Lyon, CITI Laboratory.
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package io.vitaly.vertx.http;
 
 import com.github.rjeschke.txtmark.Processor;
@@ -22,9 +5,13 @@ import io.reactivex.Flowable;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.net.JksOptions;
 import io.vitaly.vertx.database.reactivex.WikiDatabaseService;
 import io.vertx.reactivex.core.AbstractVerticle;
 import io.vertx.reactivex.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
+import io.vertx.reactivex.ext.auth.jdbc.JDBCAuth;
+import io.vertx.reactivex.ext.jdbc.JDBCClient;
 import io.vertx.reactivex.ext.web.Router;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.handler.BodyHandler;
@@ -40,6 +27,8 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.HashSet;
 
+import static io.vitaly.vertx.DatabaseConstants.*;
+    
 /**
  * @author <a href="https://julien.ponge.org/">Julien Ponge</a>
  */
@@ -58,8 +47,20 @@ public class HttpServerVerticle extends AbstractVerticle {
     String wikiDbQueue = config().getString(CONFIG_WIKIDB_QUEUE, "wikidb.queue");
     dbService = io.vitaly.vertx.database.WikiDatabaseService.createProxy(vertx.getDelegate(), wikiDbQueue);
 
-    HttpServer server = vertx.createHttpServer();
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions()
+					       .setSsl(true)
+					       .setKeyStoreOptions(new JksOptions()
+								   .setPath("server.jks")
+								   .setPassword("Q1w2e3r4")));
 
+    // JDBC auth
+    JDBCClient dbClient = JDBCClient.createShared(vertx, new JsonObject()
+						  .put("url", config().getString(CONFIG_WIKIDB_JDBC_URL, DEFAULT_WIKIDB_JDBC_URL))
+						  .put("driver_class", config().getString(CONFIG_WIKIDB_JDBC_DRIVER_CLASS, DEFAULT_WIKIDB_JDBC_DRIVER_CLASS))
+						  .put("max_pool_size", config().getInteger(CONFIG_WIKIDB_JDBC_MAX_POOL_SIZE, DEFAULT_JDBC_MAX_POOL_SIZE)));
+    
+    JDBCAuth auth = JDBCAuth.create(vertx, dbClient);
+    
     Router router = Router.router(vertx);
 
     router.route().handler(CookieHandler.create());
@@ -72,8 +73,8 @@ public class HttpServerVerticle extends AbstractVerticle {
     router.route().handler(CorsHandler.create("*").allowedHeaders(allowedHeaders));
     
     // tag::static-assets[]
-    router.get("/app/*").handler(StaticHandler.create().setCachingEnabled(false)); // <1> <2>
-    router.get("/").handler(context -> context.reroute("/app/index.html"));
+    router.get().handler(StaticHandler.create("webroot").setCachingEnabled(false)); // <1> <2>
+    //router.get("/").handler(context -> context.reroute("/app/index.html"));
     // end::static-assets[]
 
     // tag::preview-rendering[]

@@ -8,10 +8,11 @@ apply plugin: 'com.github.johnrengelman.shadow'
 dependencies {
     implementation "io.vertx:vertx-core:${rootProject.versions.vertx}"
     implementation "io.vertx:vertx-service-proxy:${rootProject.versions.vertx}"
-    implementation "org.slf4j:slf4j-simple:1.7.26"
     implementation "io.vertx:vertx-jdbc-client:${rootProject.versions.vertx}"
     implementation "io.vertx:vertx-rx-java2:${rootProject.versions.vertx}"
     implementation "com.github.rjeschke:txtmark:0.13"
+    implementation "io.vertx:vertx-auth-jdbc:${rootProject.versions.vertx}"
+    implementation "ch.qos.logback:logback-classic:1.2.3"
     annotationProcessor "io.vertx:vertx-service-proxy:${rootProject.versions.vertx}"
     annotationProcessor "io.vertx:vertx-lang-js-gen:${rootProject.versions.vertx}"
     annotationProcessor "io.vertx:vertx-rx-java2-gen:${rootProject.versions.vertx}" 
@@ -23,6 +24,12 @@ dependencies {
 mainClassName = 'io.vitaly.wiki.Launcher'
 def mainVerticleName = 'io.vitaly.vertx.MainVerticle'
 
+// Vert.x watches for file changes in all subdirectories
+// of src/ but only for files with .java extension
+def watchForChange = 'src/**/*.java'
+
+// Vert.x will call this task on changes
+def doOnChange = "..${File.separator}gradlew build"
 
 jar {
     manifest {
@@ -51,6 +58,14 @@ compileJava {
     sourceCompatibility = 1.8
     
     dependsOn annotationProcessing
+}
+
+run {
+  args = ['run', mainVerticleName, "--redeploy=$watchForChange", "--launcher-class=$mainClassName", "--on-redeploy=$doOnChange"]
+}
+
+runShadow {
+  args = ['run', mainVerticleName, "--redeploy=$watchForChange", "--launcher-class=$mainClassName", "--on-redeploy=$doOnChange"]
 }
 
 sourceSets {

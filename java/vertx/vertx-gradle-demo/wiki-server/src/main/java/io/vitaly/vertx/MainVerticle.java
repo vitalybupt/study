@@ -17,6 +17,9 @@
 
 package io.vitaly.vertx;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.reactivex.Single;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
@@ -26,7 +29,7 @@ import io.vertx.reactivex.core.AbstractVerticle;
  * @author <a href="https://julien.ponge.org/">Julien Ponge</a>
  */
 public class MainVerticle extends AbstractVerticle {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(MainVerticle.class);
   @Override
   public void start(Future<Void> startFuture) throws Exception {
 
@@ -34,7 +37,8 @@ public class MainVerticle extends AbstractVerticle {
 
     DeploymentOptions opts = new DeploymentOptions().setInstances(2);
     dbVerticleDeployment
-      .flatMap(id -> vertx.rxDeployVerticle("io.vitaly.vertx.http.HttpServerVerticle", opts))
-      .subscribe(id -> startFuture.complete(), startFuture::fail);
+	.flatMap(id -> vertx.rxDeployVerticle("io.vitaly.vertx.http.AuthInitializerVerticle"))
+	.flatMap(id -> vertx.rxDeployVerticle("io.vitaly.vertx.http.HttpServerVerticle", opts))
+	.subscribe(id -> startFuture.complete(), startFuture::fail);
   }
 }
