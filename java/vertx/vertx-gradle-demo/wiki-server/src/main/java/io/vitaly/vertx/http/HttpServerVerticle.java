@@ -29,9 +29,6 @@ import java.util.HashSet;
 
 import static io.vitaly.vertx.DatabaseConstants.*;
     
-/**
- * @author <a href="https://julien.ponge.org/">Julien Ponge</a>
- */
 public class HttpServerVerticle extends AbstractVerticle {
 
   public static final String CONFIG_HTTP_SERVER_PORT = "http.server.port";
@@ -69,12 +66,10 @@ public class HttpServerVerticle extends AbstractVerticle {
 
     Set<String> allowedHeaders = new HashSet<>();
     allowedHeaders.add("Access-Control-Allow-Origin");
-    //router.route().handler(CorsHandler.create("*").allowedHeaders(allowedHeaders));
     router.route().handler(CorsHandler.create("*").allowedHeaders(allowedHeaders));
     
     // tag::static-assets[]
     router.get().handler(StaticHandler.create("webroot").setCachingEnabled(false)); // <1> <2>
-    //router.get("/").handler(context -> context.reroute("/app/index.html"));
     // end::static-assets[]
 
     // tag::preview-rendering[]
@@ -171,6 +166,7 @@ public class HttpServerVerticle extends AbstractVerticle {
   }
 
   private void apiRoot(RoutingContext context) {
+      LOGGER.debug("Get All Pages");
     dbService.rxFetchAllPagesData()
       .flatMapPublisher(Flowable::fromIterable)
       .map(obj -> new JsonObject()

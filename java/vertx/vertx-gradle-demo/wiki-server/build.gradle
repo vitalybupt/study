@@ -29,7 +29,7 @@ def mainVerticleName = 'io.vitaly.vertx.MainVerticle'
 def watchForChange = 'src/**/*.java'
 
 // Vert.x will call this task on changes
-def doOnChange = "..${File.separator}gradlew build"
+def doOnChange = "..${File.separator}gradlew classes"
 
 jar {
     manifest {
