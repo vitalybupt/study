@@ -1,8 +1,10 @@
 import React, { Component } from "react";
-import {Form, Button, Container, Row, Col} from 'react-bootstrap';
+import {Form, Button, Col} from 'react-bootstrap';
 
 import "popper.js/dist/popper.min.js";
 import "bootstrap/dist/css/bootstrap.min.css";
+
+import "./Login.css";
 
 export default class Login extends Component {
     constructor(props) {
@@ -31,35 +33,38 @@ export default class Login extends Component {
     render() {
         return (
             <React.Fragment>
-              <Container>
-                <Form onSubmit={this.handleSubmit}>
-                  <Row>
-                    <Col md={{span:4, offset:4}} >
-                      <Form.Group controlId="email" bsSize="large">
-                        <Form.Control autoFocus type="email" value={this.state.email} onChange={this.handleChange} />
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col md={{span:4, offset:4}}>
-                      <Form.Group controlId="password" bsSize="large">
-                        <Form.Control
-                          value={this.state.password}
-                          onChange={this.handleChange}
-                          type="password"
-                        />
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                  <Col md={{span:4, offset:4}}>
-                    <span className="d-flex flex-row justify-content-center">
-                      <Button variant="secondary" disabled={!this.validateForm()} type="submit" >
-                        Login
-                      </Button>
-                    </span>
-                  </Col>
-                </Form>
-              </Container>
+              <Form onSubmit={this.handleSubmit}>
+		<Form.Row>
+                  <Form.Group as={Col} md={{span:4, offset:4}} controlId="email" bsSize="large">
+                    <Form.Control
+                      autoFocus
+                      type="email"
+                      placeholder="Email Address"
+                      value={this.state.email}
+                      onChange={this.handleChange} />
+                    <Form.Text className="text-muted">
+                      We'll never share your email with anyone else.
+                    </Form.Text>
+                  </Form.Group>
+                </Form.Row>
+                
+                <Form.Row>                   
+                  <Form.Group as={Col}  md={{span:4, offset:4}} controlId="password" bsSize="large">
+                    <Form.Control
+                      placeholder="Password"
+                      value={this.state.password}
+                      onChange={this.handleChange}
+                      type="password"
+                    />
+                  </Form.Group>
+                </Form.Row>
+                
+                <span className="d-flex flex-row justify-content-center">
+                  <Button variant="secondary" disabled={!this.validateForm()} type="submit" >
+                    Login
+                  </Button>
+                </span>
+              </Form>
             </React.Fragment>
         );
     }
