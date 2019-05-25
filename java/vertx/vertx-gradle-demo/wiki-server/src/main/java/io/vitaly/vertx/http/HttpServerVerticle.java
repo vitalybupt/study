@@ -90,6 +90,7 @@ public class HttpServerVerticle extends AbstractVerticle {
     router.put().handler(BodyHandler.create());
     router.put("/api/pages/:id").handler(this::apiUpdatePage);
     router.delete("/api/pages/:id").handler(this::apiDeletePage);
+    router.route().handler(this::defaultHandler);
     // end::routes[]
 
     int portNumber = config().getInteger(CONFIG_HTTP_SERVER_PORT, 8080);
@@ -104,6 +105,19 @@ public class HttpServerVerticle extends AbstractVerticle {
         startFuture.fail(t);
       });
   }
+
+    private void defaultHandler(RoutingContext context) {
+	final String requestedPath = context.normalisedPath();
+	final String fileToCheck =  "webroot" + requestedPath;
+
+	context.vertx().fileSystem().exists(fileToCheck, fileExistsCheck ->{
+		if (fileExistsCheck.succeeded() && fileExistsCheck.result()) {
+		    LOGGER.info("find file " + fileToCheck + " should have specific route");
+		    context.request().response().sendFile(fileToCheck);
+		} else
+		    context.reroute("/");
+	    });
+    }
 
   private void apiDeletePage(RoutingContext context) {
     int id = Integer.valueOf(context.request().getParam("id"));
