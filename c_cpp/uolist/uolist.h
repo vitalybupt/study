@@ -21,4 +21,5 @@ typedef struct {
 
 /* function declare */  
 unsigned int addList(pUoList, pUoNode);
+unsigned int freeList(pUoList list);
 void dumpList(pUoList);

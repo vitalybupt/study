@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include "uolist.h"
 typedef struct{
@@ -36,6 +37,22 @@ void main()
   insertContact(list, "zjw", "beijing");
   insertContact(list, "phy", "beijing");
   insertContact(list, "zzz", "beijing");
+  freeList(list);
+
+  insertContact(list, "phy", "beijing");
+  insertContact(list, "zzz", "beijing");
+  freeList(list);
+
+  int i = 0;
+  do{
+      char buf[32];
+      memset(buf, 0, 32);
+      snprintf(buf, 32, "zjw%d", i);
+      insertContact(list, buf, "beijing");
+      i++;
+  }while(i<20000);
+  freeList(list);
   
+  free(list);
   return;
 }
