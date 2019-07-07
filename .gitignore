@@ -2,6 +2,10 @@
 .gradle
 build
 node_modules
-.o
-.a
-.s
+*.o
+*.a
+*.s
+*.out
+*.run
+CMakeFiles/
+*.cmake
