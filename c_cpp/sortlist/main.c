@@ -22,7 +22,7 @@ static void insertContact(pUoList list, const char* name, const char* addr) {
   node1->data = p1;
 
   addList(list, node1);
-  dumpList(list);
+  //dumpList(list);
 
   return;
 }
@@ -30,17 +30,19 @@ void main()
 {
   pUoList list = malloc(sizeof(uoList));
   memset(list, 0, sizeof(uoList));
-  list->maxLength = 10;
+  list->maxLength = 10000;
   list->cmp = contactCmp;
   dumpList(list);
 
   insertContact(list, "zjw", "beijing");
   insertContact(list, "phy", "beijing");
   insertContact(list, "zzz", "beijing");
+  dumpList(list);
   freeList(list);
 
   insertContact(list, "phy", "beijing");
   insertContact(list, "zzz", "beijing");
+  dumpList(list);
   freeList(list);
 
   int i = 0;
@@ -51,6 +53,7 @@ void main()
       insertContact(list, buf, "beijing");
       i++;
   }while(i<20000);
+  dumpList(list);
   freeList(list);
   
   free(list);

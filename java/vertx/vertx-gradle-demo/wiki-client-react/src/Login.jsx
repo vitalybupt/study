@@ -28,8 +28,21 @@ export default class Login extends Component {
 
     handleSubmit = event => {
         event.preventDefault();
+        fetch("/token", {
+            method: 'POST',
+            headers: {
+                'login' : this.state.username,
+                'password' : this.state.password
+            }
+        })
+            .then(function(response) {
+                if (!response.ok)
+                    throw Error(response.statusText);
+                
+            })
+            .catch(error => console.log(error, "when create new page", name));        
     }
-
+    
     render() {
         return (
             <React.Fragment>

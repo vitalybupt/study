@@ -12,8 +12,6 @@ struct uoNode {
   
 typedef struct {
   pUoNode head;
-  pUoNode tail;
-
   unsigned int length;
   unsigned int maxLength;
   uoNodeCmp cmp;
