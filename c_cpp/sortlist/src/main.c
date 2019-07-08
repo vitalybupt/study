@@ -11,25 +11,23 @@ static int contactCmp(void* p1, void* p2) {
   return strncmp(((pContact)p1)->name, ((pContact)p2)->name, 8);
 }
 
-static void insertContact(pUoList list, const char* name, const char* addr) {
+static void insertContact(pSortList list, const char* name, const char* addr) {
   pContact p1 = malloc(sizeof(contact));
   memset(p1, 0,sizeof(contact));
   strncpy(p1->name, name, 8);
   strncpy(p1->address, addr, 64);
-  pUoNode node1 = malloc(sizeof(uoNode));
-  memset(node1, 0, sizeof(uoNode));
-  node1->prev = node1->next = NULL;
+  pNode node1 = malloc(sizeof(Node));
+  memset(node1, 0, sizeof(Node));
   node1->data = p1;
-
   addList(list, node1);
-  //dumpList(list);
+  dumpList(list);
 
   return;
 }
-void main()
+int main()
 {
-  pUoList list = malloc(sizeof(uoList));
-  memset(list, 0, sizeof(uoList));
+  pSortList list = malloc(sizeof(SortList));
+  memset(list, 0, sizeof(SortList));
   list->maxLength = 10000;
   list->cmp = contactCmp;
   dumpList(list);
@@ -53,9 +51,19 @@ void main()
       insertContact(list, buf, "beijing");
       i++;
   }while(i<20000);
-  dumpList(list);
+
+
+  /* { */
+  /*     pContact p1 = malloc(sizeof(contact)); */
+  /*     memset(p1, 0,sizeof(contact)); */
+  /*     strncpy(p1->name, "phy", 8); */
+  /*     strncpy(p1->address, "haidian", 64); */
+  /*     pNode node1 = malloc(sizeof(uoNode)); */
+  /*     pNode node2 = searchInsert(list, node1); */
+      
+  /* } */
   freeList(list);
   
   free(list);
-  return;
+  return 0;
 }

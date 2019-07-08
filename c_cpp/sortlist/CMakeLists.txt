@@ -4,9 +4,17 @@ if(ENABLE_TESTS)
   enable_testing()
 endif(ENABLE_TESTS)
 
-add_library(sortlist sortlist.c)
+ADD_DEFINITIONS(-O2 -Wall -Werror -Wno-unused --std=gnu99 -Wmissing-declarations)
 
-add_executable(demo main.c)
+SET(HDRS
+  include/sortlist.h)
+
+add_library(sortlist SHARED src/sortlist.c)
+target_include_directories(sortlist PUBLIC ${CMAKE_SOURCE_DIR}/sortlist/include)
+
+add_executable(demo src/main.c ${HDRS})
+target_include_directories(demo PUBLIC ${CMAKE_SOURCE_DIR}/sortlist/include)
+
 target_link_libraries(demo LINK_PUBLIC sortlist)
 
 if(ENABLE_TESTS)
