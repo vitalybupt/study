@@ -4,7 +4,7 @@ if(ENABLE_TESTS)
   enable_testing()
 endif(ENABLE_TESTS)
 
-ADD_DEFINITIONS(-O2 -Wall -Werror -Wno-unused --std=gnu99 -Wmissing-declarations)
+ADD_DEFINITIONS(-Og -g -Wall -Werror -Wno-unused --std=gnu99 -Wmissing-declarations)
 
 SET(HDRS
   include/sortlist.h)

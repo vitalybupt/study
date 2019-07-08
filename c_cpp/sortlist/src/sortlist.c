@@ -1,28 +1,33 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "sortlist.h"
 
-// find the first element with value larger or equal to value in node
-/* pNode searchInsert(pSortList list, pNode node){ */
-/*   pNode low = list->head; */
-/*   pNode high = NULL; */
-/*   pNode slow, fast = list->head; */
-/*   do{ */
-/*     //split into two halves[low, slow, high] */
-/*     do{ */
-/*       slow = slow->next; */
-/*       fast = fast->next->next; */
-/*     } while(fast != NULL && fast!= high); */
-    
-/*     if(list->cmp(slow->data, node->data) < 0) { */
-/*     low, slow, fast = slow->next; */
-/*     } else{ */
-/*       high = low->prev; */
-/*       slow, fast = low; */
-/*     } */
-/*   } while(list->cmp(slow->data, node->data) <= 0); */
-/*   return low; */
-/* } */
+/* find the first element with value larger or equal to value in node */
+pNode searchInsert(pSortList list, pNode target){
+  pNode low = list->head;
+  pNode high = NULL;
+  pNode slow, fast = list->head;
+  slow = list->head;
+  do{
+    //split into two halves[low, slow, high]
+    while(fast->next != high && fast->next->next != high){
+      fast = fast->next->next;
+      slow = slow->next;
+    }
+
+    if(list->cmp(slow, target) < 0) { /* slow->next, high*/
+      if(slow == high) break;
+      slow = fast = low = slow->next;
+    } else{ /* [low, slow->prev ]*/
+      if(slow == low)
+	break;
+      high = slow;
+      slow = fast = low;
+    }
+  } while(1);
+  return low;
+}
 
 
 // find the element we should insert the node after
@@ -48,7 +53,8 @@ unsigned int addList(pSortList list, pNode node) {
 	list->head = node;
 	printf("first node %p to list, next is %p\r\n", list->head, node->next);
     } else {
-	pNode pos = findPos(list, node);
+      /* pNode pos = findPos(list, node); */
+      pNode pos =searchInsert(list,node);
 	if( pos == NULL) { // new head
 	    node->next = list->head;
 	    list->head = node;
@@ -66,7 +72,7 @@ unsigned int addList(pSortList list, pNode node) {
 
     if (list->length > list->maxLength) {
         pNode removed = list->head; // check if remove from head
-	printf("exceed list max length %ud, try to remove node %p", list->maxLength, removed); 
+	printf("exceed list max length %u, try to remove node %p", list->maxLength, removed); 
         list->head = removed->next;
         list->length--;
         free(removed->data);
@@ -110,5 +116,18 @@ void dumpList(pSortList list) {
       break;
   } while(1);
   printf("\r\n");
+  return;
+}
+
+void validateList(pSortList list) {
+  pNode pos = list->head;
+  pNode next = pos->next;
+  while(pos->next != NULL){
+    printf("validate pos %p, next %p\r\n",pos, next );
+    assert(list->cmp(pos, next) < 0 );
+    if(next->next == NULL) break;
+    pos = next;
+    next = next->next;
+  }
   return;
 }

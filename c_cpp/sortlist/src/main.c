@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include "sortlist.h"
 typedef struct{
   char name[8];
@@ -20,8 +21,6 @@ static void insertContact(pSortList list, const char* name, const char* addr) {
   memset(node1, 0, sizeof(Node));
   node1->data = p1;
   addList(list, node1);
-  dumpList(list);
-
   return;
 }
 int main()
@@ -50,20 +49,11 @@ int main()
       snprintf(buf, 32, "zjw%d", i);
       insertContact(list, buf, "beijing");
       i++;
-  }while(i<20000);
-
-
-  /* { */
-  /*     pContact p1 = malloc(sizeof(contact)); */
-  /*     memset(p1, 0,sizeof(contact)); */
-  /*     strncpy(p1->name, "phy", 8); */
-  /*     strncpy(p1->address, "haidian", 64); */
-  /*     pNode node1 = malloc(sizeof(uoNode)); */
-  /*     pNode node2 = searchInsert(list, node1); */
-      
-  /* } */
+  }while(i<10);
+  assert(list->length == 10);
+  validateList(list);
   freeList(list);
-  
   free(list);
+  
   return 0;
 }

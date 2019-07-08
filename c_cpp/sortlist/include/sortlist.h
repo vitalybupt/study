@@ -19,3 +19,6 @@ typedef struct {
 unsigned int addList(pSortList, pNode);
 unsigned int freeList(pSortList list);
 void dumpList(pSortList);
+
+pNode searchInsert(pSortList list, pNode target);
+void validateList(pSortList list);
