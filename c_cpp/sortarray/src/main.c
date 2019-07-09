@@ -1,6 +1,3 @@
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sortarray.h>
 
 #define ARRAY_SIZE 100
@@ -29,6 +26,7 @@ static void insertContact(pArray array, const char* name, const char* addr) {
 int main(){
     pArray array = createArray(ARRAY_SIZE);
     setCmpAlgo(array, contactCmp);
-
+    insertContact(array, "zjw", "beijing");
+    insertContact(array, "phy", "beijing");
     return 0;
 }
