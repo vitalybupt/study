@@ -12,7 +12,7 @@
    if the child element is head of the list, NULL will be returned to
    indicate that we should insert the terget as the new head of list
 **/
-pNode searchInsert(pSortList list, pNode target){
+static pNode binarySearch(pSortList list, pNode target){
    /* start state:
       NULL  [ ]  [ ]  [ ]  [ ]  NULL
        ¡ü     ¡ü              ¡ü    ¡ü
@@ -84,7 +84,7 @@ pNode searchInsert(pSortList list, pNode target){
 
 // find the element we should insert the node after
 // if the target is the new head, NULL returned
-static pNode findPos(pSortList list, pNode target){
+static pNode linearSearch(pSortList list, pNode target){
     pNode pos = list->head;
     pNode prev = NULL;
 
@@ -107,8 +107,7 @@ unsigned int addList(pSortList list, pNode node) {
 	list->tail = node;
 	printf("first node %p to list, next is %p\r\n", list->head, node->next);
     } else {
-       pNode pos = findPos(list, node);
-       /* pNode pos =searchInsert(list,node); */
+	pNode pos = list->search(list, node);
 	if( pos == NULL) { // new head
 	    node->next = list->head;
 	    list->head = node;
@@ -183,4 +182,11 @@ void validateList(pSortList list, unsigned int length) {
      next = next->next;
   }
   return;
+}
+
+void setAlgo(pSortList list, SearchAlgo algo){
+    if(algo == linear)
+	list->search = linearSearch;
+    else
+	list->search = binarySearch;
 }

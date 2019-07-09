@@ -24,12 +24,14 @@ static void insertContact(pSortList list, const char* name, const char* addr) {
   /* dumpList(list); */
   return;
 }
+
 int main()
 {
   pSortList list = malloc(sizeof(SortList));
   memset(list, 0, sizeof(SortList));
   list->maxLength = 10000;
   list->cmp = contactCmp;
+  setAlgo(list, linear);
   dumpList(list);
 
   /* insertContact(list, "phy", "beijing"); */
