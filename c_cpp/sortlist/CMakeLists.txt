@@ -4,15 +4,16 @@ if(ENABLE_TESTS)
   enable_testing()
 endif(ENABLE_TESTS)
 
-ADD_DEFINITIONS(-Og -g -Wall -Werror -Wno-unused --std=gnu99 -Wmissing-declarations)
 
 SET(HDRS
   include/sortlist.h)
 
 add_library(sortlist SHARED src/sortlist.c)
+target_compile_options(sortlist PUBLIC -O2 -Wall -Werror -Wno-unused --std=gnu99 -Wmissing-declarations)
 target_include_directories(sortlist PUBLIC ${CMAKE_SOURCE_DIR}/sortlist/include)
 
 add_executable(demo src/main.c ${HDRS})
+target_compile_options(demo PUBLIC -O2 -Wall -Werror -Wno-unused --std=gnu99 -Wmissing-declarations)
 target_include_directories(demo PUBLIC ${CMAKE_SOURCE_DIR}/sortlist/include)
 
 target_link_libraries(demo LINK_PUBLIC sortlist)

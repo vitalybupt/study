@@ -21,6 +21,7 @@ static void insertContact(pSortList list, const char* name, const char* addr) {
   memset(node1, 0, sizeof(Node));
   node1->data = p1;
   addList(list, node1);
+  /* dumpList(list); */
   return;
 }
 int main()
@@ -31,16 +32,25 @@ int main()
   list->cmp = contactCmp;
   dumpList(list);
 
+  /* insertContact(list, "phy", "beijing"); */
+  /* dumpList(list); */
+  /* freeList(list); */
+  
+
+  insertContact(list, "phy", "beijing");
+  insertContact(list, "zzz", "beijing");
+  validateList(list, 2);
+  dumpList(list);
+  freeList(list);
+  
+
+  
   insertContact(list, "zjw", "beijing");
   insertContact(list, "phy", "beijing");
   insertContact(list, "zzz", "beijing");
   dumpList(list);
   freeList(list);
 
-  insertContact(list, "phy", "beijing");
-  insertContact(list, "zzz", "beijing");
-  dumpList(list);
-  freeList(list);
 
   int i = 0;
   do{
@@ -49,11 +59,10 @@ int main()
       snprintf(buf, 32, "zjw%d", i);
       insertContact(list, buf, "beijing");
       i++;
-  }while(i<10);
-  assert(list->length == 10);
-  validateList(list);
+  }while(i<10000);
+  validateList(list, 10000);
   freeList(list);
-  free(list);
   
+  free(list);
   return 0;
 }

@@ -3,40 +3,93 @@
 #include <assert.h>
 #include "sortlist.h"
 
-/* find the first element with value larger or equal to value in node */
-pNode searchInsert(pSortList list, pNode target){
-  pNode low = list->head;
-  pNode high = NULL;
-  pNode slow, fast = list->head;
-  slow = list->head;
-  do{
-    //split into two halves[low, slow, high]
-    while(fast->next != high && fast->next->next != high){
-      fast = fast->next->next;
-      slow = slow->next;
-    }
+/**
+   Find parent element so that target will be inserted after that element.       
 
-    if(list->cmp(slow, target) < 0) { /* slow->next, high*/
-      if(slow == high) break;
-      slow = fast = low = slow->next;
-    } else{ /* [low, slow->prev ]*/
-      if(slow == low)
-	break;
-      high = slow;
-      slow = fast = low;
-    }
-  } while(1);
-  return low;
+   In practice, we will find the first element greater or equal than
+   the target (the child element), then return the previous element of that one.
+
+   if the child element is head of the list, NULL will be returned to
+   indicate that we should insert the terget as the new head of list
+**/
+pNode searchInsert(pSortList list, pNode target){
+   /* start state:
+      NULL  [ ]  [ ]  [ ]  [ ]  NULL
+       ¡ü     ¡ü              ¡ü    ¡ü
+ prev->found low           high high->next
+              ¡ü
+     slow ¡ú fast
+     invariant: target between [low, high->next]
+     if low >= high->next or low > high, break
+   */
+   pNode found, prev, slow, fast, low, high;
+   slow = fast = low = list->head;
+   found = prev = NULL;
+   high = list->tail;
+   /* unsigned count = 0; */
+
+   while( high && low != high->next) {
+      /* search step:
+	 walk through the list until:
+	 [ ]  [ ]  ...   [ ]  [ ]  ...  [ ]  [ ]
+          ¡ü    ¡ü          ¡ü    ¡ü         ¡ü    ¡ü
+        found low       prev  slow      fast  high
+	 or:
+	 [ ]  [ ]  ...  [ ]  [ ]  ...  [ ]
+          ¡ü    ¡ü         ¡ü    ¡ü         ¡ü 
+        found low      prev slow  fast¡úhigh
+	the target must be inserted in the range [low, high->next]
+	so the range of parent node is [found, high]
+      */ 
+      while (fast != high && fast->next != high){
+	 fast = fast->next->next;
+	 prev = slow;
+	 slow = slow->next;
+	 /* count++; */
+      }
+
+      /* update state:
+	 split the list into two halves then choose one for next iteration:
+	 if slow >= target: [low, prev]
+	 [ ]  [ ]  ...  [ ]
+	  ¡ü    ¡ü         ¡ü 
+	found low       prev
+	the update rule is:
+	low = low; high = prev; found = found; slow = fast = low; prev = found
+	if slow < target:  [slow+1, high]
+	[ ]  [ ] ... [ ]
+	 ¡ü    ¡ü       ¡ü
+       found slow+1  high
+       the update rule is:
+       low = slow->next; high = high; found = slow; slow = fast = low; prev = found
+      */
+      if(list->cmp(slow->data, target->data) >= 0) {  /* [low, prev]*/
+	 high = prev; // high may become NULL if we found new head
+	 slow = fast = low;
+	 prev = found;
+	 /* printf("update search list1 to low: %p, high: %p\r\n", low, high); */
+      } else{ 	 /* [slow->next, high] */
+	 low = slow->next;
+	 found = slow;
+	 slow = fast = low;
+	 prev = found;
+	 /* printf("update search list2 to low: %p, high: %p\r\n", low, high); */
+      }
+   }
+   /* if(list->length > 2000) */
+   /*    printf("list length is %d total loop times is %d\r\n", list->length, count); */
+  return found;
 }
 
 
 // find the element we should insert the node after
-static pNode findPos(pSortList list, pNode node){
+// if the target is the new head, NULL returned
+static pNode findPos(pSortList list, pNode target){
     pNode pos = list->head;
     pNode prev = NULL;
 
     do {
-	if(pos != NULL && list->cmp(pos->data, node->data) < 0) { // the element less than value in node
+	if(pos != NULL && list->cmp(pos->data, target->data) < 0) { // the element less than value in target
 	    prev = pos;
 	    pos = pos->next;
 	    continue; 
@@ -51,16 +104,18 @@ unsigned int addList(pSortList list, pNode node) {
 
     if(list->head == NULL) { //empty list
 	list->head = node;
+	list->tail = node;
 	printf("first node %p to list, next is %p\r\n", list->head, node->next);
     } else {
-      /* pNode pos = findPos(list, node); */
-      pNode pos =searchInsert(list,node);
+       pNode pos = findPos(list, node);
+       /* pNode pos =searchInsert(list,node); */
 	if( pos == NULL) { // new head
 	    node->next = list->head;
 	    list->head = node;
 	    printf("add new head node %p to list, next:%p\r\n", node, node->next);
 	} else if( pos->next == NULL) { // new tail
 	    pos->next = node;
+	    list->tail = node;
 	    printf("add new tail node %p to list\r\n", node);
 	} else {
 	    node->next = pos->next;
@@ -69,10 +124,9 @@ unsigned int addList(pSortList list, pNode node) {
 	}
     }
     list->length++;
-
     if (list->length > list->maxLength) {
         pNode removed = list->head; // check if remove from head
-	printf("exceed list max length %u, try to remove node %p", list->maxLength, removed); 
+	//printf("exceed list max length %u, try to remove node %p", list->maxLength, removed); 
         list->head = removed->next;
         list->length--;
         free(removed->data);
@@ -119,15 +173,14 @@ void dumpList(pSortList list) {
   return;
 }
 
-void validateList(pSortList list) {
+void validateList(pSortList list, unsigned int length) {
   pNode pos = list->head;
   pNode next = pos->next;
   while(pos->next != NULL){
-    printf("validate pos %p, next %p\r\n",pos, next );
-    assert(list->cmp(pos, next) < 0 );
-    if(next->next == NULL) break;
-    pos = next;
-    next = next->next;
+     assert(list->cmp(pos->data, next->data) < 0 );
+     if(next->next == NULL) break;
+     pos = next;
+     next = next->next;
   }
   return;
 }

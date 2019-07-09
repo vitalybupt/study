@@ -10,6 +10,7 @@ struct Node {
   
 typedef struct {
   pNode head;
+  pNode tail;
   unsigned int length;
   unsigned int maxLength;
   cmpData cmp;
@@ -21,4 +22,4 @@ unsigned int freeList(pSortList list);
 void dumpList(pSortList);
 
 pNode searchInsert(pSortList list, pNode target);
-void validateList(pSortList list);
+void validateList(pSortList list, unsigned length);
