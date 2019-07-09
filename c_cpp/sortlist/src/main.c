@@ -3,6 +3,7 @@
 #include <string.h>
 #include <assert.h>
 #include "sortlist.h"
+
 typedef struct{
   char name[8];
   char address[64];
