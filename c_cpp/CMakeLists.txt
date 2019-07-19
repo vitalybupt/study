@@ -3,3 +3,4 @@ project (C_CPP)
 
 add_subdirectory(sortlist)
 add_subdirectory(sortarray)
+add_subdirectory(binarytree)
