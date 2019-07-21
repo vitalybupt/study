@@ -1,9 +1,10 @@
-typedef struct Node Node, *pNode;
+typedef struct Node Node,*pNode;
 
 struct Node {
     pNode left;
     pNode right;
-    void* value;
+    int value;
 };
 
-unsigned int verifyBinaryTree(pNode root);
+int verifyBinaryTree(pNode root);
+pNode insertIntoBinaryTree(pNode root, int val);
