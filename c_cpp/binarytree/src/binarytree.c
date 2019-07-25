@@ -27,3 +27,28 @@ pNode insertIntoBinaryTree(pNode root, int val) {
   else root->right = insertIntoBinaryTree(root->right, val);
   return root;			   
 }
+
+pNode insertBinaryNode(pNode root, int value ) {
+    pNode newRoot = NULL;
+    if (root == NULL) {
+	newRoot = malloc(sizeof(Node));
+	memeset(newRoot, 0, sizeof(Node));
+	newRoot->value = value;
+	newRoot->height = 0;
+	return newRoot;
+    }
+
+    newRoot = root;
+    if( value < root->data ) {
+	root->left = insertBinaryNode(root->left, value);
+	root->height = maxHeight(root->left, root->right) + 1;
+	if (root->left->left->height > root->right->height) newRoot = rotateLL(root, root->left, root->right);
+	else if(root->left->right->height > root->right->height ) newRoot = rotateLR(root, root->left, root->right);
+    }else {
+	root->right = insertBinaryNode(root->right, value);
+	root->height = maxHeight(root->left, root->right) + 1;
+	if (root->right->left->height > root->left->height) newRoot = rotateRL(root, root->left, root->right);
+	else if(root->right->right->height > root->left->height ) newRoot = rotateRR(root, root->left, root->right);
+    }
+    return newRoot;    
+}

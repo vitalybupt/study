@@ -4,6 +4,7 @@ struct Node {
     pNode left;
     pNode right;
     int value;
+    int height;
 };
 
 int verifyBinaryTree(pNode root);
