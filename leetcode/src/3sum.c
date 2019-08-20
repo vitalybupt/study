@@ -46,13 +46,15 @@ void insertSortSums(int* sortNums, int* sortNumsSize, int val) {
  */
 
 int factorial(int val) {
-  if(val == 1) return 1;
+  if(val == 1 || val == 0) return 1;
   else return val*factorial(val-1);
 }
 
-int** threeSum(int* nums, int numsSize, int* returnSize){
+int** threeSum(int* nums, int numsSize, int* returnSize, int** returnColumnSizes){
+
   int *sortNums = malloc(sizeof(int)*numsSize);
   (*returnSize) = 0;
+  if(numsSize < 3) return NULL;
   memset(sortNums, 0, sizeof(int)*numsSize);
   int sortNumsSize = 0;
   int i = 0;
@@ -79,17 +81,27 @@ int** threeSum(int* nums, int numsSize, int* returnSize){
 	}
 	// skip number which is identical to its previous to remove duplicate tuple
 	{
-	  while(sortNums[i] == sortNums[i+1]) i++;
+	  while(i< sortNumsSize-1 && sortNums[i] == sortNums[i+1]) i++;
 	}
       }
     }
-
+    {
+      int* colSizeArray = malloc(sizeof(int)*(*returnSize));
+      for(int i = 0; i < (*returnSize); ++i)
+	colSizeArray[i] = 3;
+      returnColumnSizes[0] = colSizeArray;
+    }
     return retArrays;
   }
 }
 
 void main() {
-  int input[6] = {-1, 0, 1, 2, -1, -4};
+  int input[3] = {1,0,-1};
   int returnsize = 0;
-  threeSum(input, 6, &returnsize);
+  int** colArrays = malloc(sizeof(int*));
+  int** ret = threeSum(input, 3, &returnsize, colArrays);
+  for(int i = 0; i < returnsize; i++) {
+    free(ret[i]);
+  }
+  free(ret);
 }
