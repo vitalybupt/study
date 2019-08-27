@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/resource.h>
 /* Given an array nums of n integers, are there elements a, b, c in nums */
 /* such that a + b + c = 0? Find all unique triplets in the array which gives the sum of zero. */
 
@@ -15,14 +16,15 @@
 
 int binarySearch(int* array, int low, int high, int target) {
   //  printf("binary search between low: %d high %d\r\n", low, high);
+  if(low>high) {return low;}    
   int mid = (low + high)/2;
   if(array[mid] < target) {
     low = mid+1;
   } else {
     high = mid -1;
   }
-  if(low>=high) {return low;}
-  else return binarySearch(array, low, high, target);
+
+  return binarySearch(array, low, high, target);
 }
 
 void displaySums(int* nums, int size) {
@@ -33,7 +35,7 @@ void displaySums(int* nums, int size) {
  }
 
 void insertSortSums(int* sortNums, int* sortNumsSize, int val) {
-  int pos = binarySearch(sortNums, 0, *sortNumsSize, val);
+    int pos = binarySearch(sortNums, 0, (*sortNumsSize)-1, val);
   memmove(sortNums+pos+1, sortNums+pos, (*sortNumsSize-pos)*sizeof(int));
   sortNums[pos] = val;
   (*sortNumsSize)++;
@@ -45,9 +47,10 @@ void insertSortSums(int* sortNums, int* sortNumsSize, int val) {
  * Note: The returned array must be malloced, assume caller calls free().
  */
 
-int factorial(int val) {
-  if(val == 1 || val == 0) return 1;
-  else return val*factorial(val-1);
+int factorial(int val, const int barrier) {
+    if(val == 0) return 1;
+    else if(val == barrier) return val;
+    else return val*factorial(val-1, barrier);
 }
 
 int** threeSum(int* nums, int numsSize, int* returnSize, int** returnColumnSizes){
@@ -58,25 +61,41 @@ int** threeSum(int* nums, int numsSize, int* returnSize, int** returnColumnSizes
   memset(sortNums, 0, sizeof(int)*numsSize);
   int sortNumsSize = 0;
   int i = 0;
+  
   while(i < numsSize) {
     //sort array so we can skip identical number to avoid duplicate
+    printf("%d: %d\r\n", i, nums[i]);
     insertSortSums(sortNums, &sortNumsSize, nums[i]);
     i++;
   }
+
   {
-    int maxSize = factorial(sortNumsSize)/(6*factorial(sortNumsSize -3));
-    int** retArrays = malloc(sizeof(int*)*maxSize);
+    //int maxSize = factorial(sortNumsSize, sortNumsSize - 3)/6;
+    int retArraysSize = sortNumsSize;
+    int** retArrays = malloc(sizeof(int*)*retArraysSize);
     int** retCol = malloc(sizeof(int*));
     {
       for(int i = 0; i < sortNumsSize -2; i++) {
 	for(int j = i+1; j < sortNumsSize -1; j++) {
 	  for(int k = j+1; k<sortNumsSize; k++) {
 	    if(sortNums[i] + sortNums[j]+sortNums[k] == 0) {
+	      if(*returnSize >= retArraysSize) {
+		retArraysSize *= 2;
+		retArrays = realloc(retArrays, sizeof(int*)*retArraysSize);
+	      }
 	      int* tmp = malloc(sizeof(int)*3);
 	      tmp[0] = sortNums[i]; tmp[1] = sortNums[j]; tmp[2] = sortNums[k];
 	      retArrays[*returnSize] = tmp;
 	      (*returnSize)++;
 	    }
+	    // skip number which is identical to its previous to remove duplicate tuple
+	    {
+	      while(k< sortNumsSize-1 && sortNums[k] == sortNums[k+1]) k++;
+	    }
+	  }
+	  // skip number which is identical to its previous to remove duplicate tuple
+	  {
+	    while(j< sortNumsSize-1 && sortNums[j] == sortNums[j+1]) j++;
 	  }
 	}
 	// skip number which is identical to its previous to remove duplicate tuple
@@ -96,7 +115,8 @@ int** threeSum(int* nums, int numsSize, int* returnSize, int** returnColumnSizes
 }
 
 void main() {
-  int input[3] = {1,0,-1};
+  int input[3] = {82597,-9243,62390};
+
   int returnsize = 0;
   int** colArrays = malloc(sizeof(int*));
   int** ret = threeSum(input, 3, &returnsize, colArrays);

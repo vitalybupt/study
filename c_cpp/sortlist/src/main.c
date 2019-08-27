@@ -18,8 +18,8 @@ static void insertContact(pSortList list, const char* name, const char* addr) {
   memset(p1, 0,sizeof(contact));
   strncpy(p1->name, name, 8);
   strncpy(p1->address, addr, 64);
-  pNode node1 = malloc(sizeof(Node));
-  memset(node1, 0, sizeof(Node));
+  pNode node1 = malloc(sizeof(struct Node));
+  memset(node1, 0, sizeof(struct Node));
   node1->data = p1;
   addList(list, node1);
   /* dumpList(list); */

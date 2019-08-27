@@ -1,14 +1,14 @@
 /* type declare */
-typedef struct Node Node,*pNode;
+typedef struct Node {
+  struct Node *next;
+  void* data;
+} *pNode;
+
 typedef struct SortList SortList, *pSortList;
 
 typedef int (*cmpData)(void*, void*);
 typedef pNode (*searchAlgo)(pSortList list, pNode target);
 
-struct Node {
-  pNode next;
-  void* data;
-};
   
 struct SortList {
   pNode head;
