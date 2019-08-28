@@ -18,3 +18,7 @@ target_compile_options(isPalindrome PUBLIC -O0 -g  --std=gnu99)
 
 add_executable(wordladder src/wordladder.c)
 target_compile_options(wordladder PUBLIC -pg  --std=gnu99)
+
+add_executable(validnum src/validNumber.c)
+target_compile_options(merge PUBLIC -O0 -g  --std=gnu99)
+
