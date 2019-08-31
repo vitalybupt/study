@@ -15,3 +15,9 @@ target_compile_options(validateBST PUBLIC -O0 -g  --std=gnu99)
 
 add_executable(traverseBST src/traverseBST.c)
 target_compile_options(traverseBST PUBLIC -O0 -g  --std=gnu99)
+
+add_executable(isPalindrome src/isPalindrome.c)
+target_compile_options(isPalindrome PUBLIC -O0 -g  --std=gnu99)
+
+add_executable(wordladder src/wordladder.c)
+target_compile_options(wordladder PUBLIC -O0 -g  --std=gnu99)

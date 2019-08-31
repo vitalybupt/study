@@ -22,6 +22,9 @@ void insertNode( int** result, int val, int* size) {
   }
 }
 
+/* Todo: this is morris traversal version
+         please implement stack version later
+*/
 int* inorderTraversal(struct TreeNode* root, int* returnSize){
   struct TreeNode* cur = root;
   int * ret = NULL;
