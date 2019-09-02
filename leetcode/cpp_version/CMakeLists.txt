@@ -9,3 +9,6 @@ target_compile_options(addTwoNumbers PUBLIC -Os)
 add_executable(intToRoman src/intToRoman.cpp)
 target_compile_options(intToRoman PUBLIC -Os)
 
+add_executable(generateParenthesis src/generateParenthesis.cpp)
+target_compile_options(generateParenthesis PUBLIC -Os -std=c++11)
+
