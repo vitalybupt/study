@@ -1,3 +1,7 @@
+*
+!*.*
+!*/
+
 .idea
 .gradle
 build
@@ -9,4 +13,5 @@ node_modules
 *.out
 *.run
 CMakeFiles/
+CMakeCache.txt
 *.cmake
