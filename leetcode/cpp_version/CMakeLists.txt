@@ -12,3 +12,10 @@ target_compile_options(intToRoman PUBLIC -Os)
 add_executable(generateParenthesis src/generateParenthesis.cpp)
 target_compile_options(generateParenthesis PUBLIC -Os -std=c++11)
 
+
+add_executable(permutations src/permutations.cpp)
+target_compile_options(permutations  PUBLIC -O0 -g -std=c++11)
+
+add_executable(groupAnagrams src/groupAnagrams.cpp)
+target_compile_options(groupAnagrams  PUBLIC -O0 -g -std=c++11)
+
