@@ -19,3 +19,7 @@ target_compile_options(permutations  PUBLIC -O0 -g -std=c++11)
 add_executable(groupAnagrams src/groupAnagrams.cpp)
 target_compile_options(groupAnagrams  PUBLIC -O0 -g -std=c++11)
 
+
+add_executable(addingBinary src/addingBinary.cpp)
+target_compile_options(addingBinary  PUBLIC -O0 -g -std=c++11)
+
