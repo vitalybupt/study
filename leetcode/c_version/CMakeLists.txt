@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+
 add_executable(3sum src/3sum.c)
 target_compile_options(3sum PUBLIC -Os  --std=gnu99)
 
@@ -22,3 +24,14 @@ target_compile_options(wordladder PUBLIC -pg  --std=gnu99)
 add_executable(validnum src/validNumber.c)
 target_compile_options(merge PUBLIC -O0 -g  --std=gnu99)
 
+add_executable(sortArray src/912_sortArray.c)
+target_compile_options(sortArray PUBLIC -O0 -g  --std=gnu99)
+
+add_executable(sortList src/148_sortList.c)
+target_compile_options(sortList PUBLIC -O0 -g  --std=gnu99)
+
+add_executable(jumpGame src/55_jumpGame.c)
+target_compile_options(jumpGame PUBLIC -O0 -g  --std=gnu99)
+
+add_executable(maxProfit src/122_maxProfit.c)
+target_compile_options(maxProfit PUBLIC -O0 -g  --std=gnu99)
