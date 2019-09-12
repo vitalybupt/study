@@ -33,5 +33,11 @@ target_compile_options(sortList PUBLIC -O0 -g  --std=gnu99)
 add_executable(jumpGame src/55_jumpGame.c)
 target_compile_options(jumpGame PUBLIC -O0 -g  --std=gnu99)
 
-add_executable(maxProfit src/122_maxProfit.c)
+add_executable(maxProfit src/121_maxProfit.c)
 target_compile_options(maxProfit PUBLIC -O0 -g  --std=gnu99)
+
+add_executable(maxProfit2 src/122_maxProfit.c)
+target_compile_options(maxProfit2 PUBLIC -O0 -g  --std=gnu99)
+
+add_executable(gasStation src/134_gasStation.c)
+target_compile_options(gasStation PUBLIC -O0 -g  --std=gnu99)
