@@ -22,7 +22,7 @@ add_executable(wordladder src/wordladder.c)
 target_compile_options(wordladder PUBLIC -pg  --std=gnu99)
 
 add_executable(validnum src/validNumber.c)
-target_compile_options(merge PUBLIC -O0 -g  --std=gnu99)
+target_compile_options(validnum PUBLIC -O0 -g  --std=gnu99)
 
 add_executable(sortArray src/912_sortArray.c)
 target_compile_options(sortArray PUBLIC -O0 -g  --std=gnu99)
@@ -42,5 +42,5 @@ target_compile_options(maxProfit2 PUBLIC -O0 -g  --std=gnu99)
 add_executable(gasStation src/134_gasStation.c)
 target_compile_options(gasStation PUBLIC -O0 -g  --std=gnu99)
 
-add_executable(recoveryTree src/99_recoveryTree.c)
-target_compile_options(recoveryTree PUBLIC -O0 -g  --std=gnu99)
+add_executable(recoverTree src/99_recoverTree.c)
+target_compile_options(recoverTree PUBLIC -O0 -g  --std=gnu99)
