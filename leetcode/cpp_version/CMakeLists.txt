@@ -23,3 +23,7 @@ target_compile_options(groupAnagrams  PUBLIC -O0 -g -std=c++11)
 add_executable(addingBinary src/addingBinary.cpp)
 target_compile_options(addingBinary  PUBLIC -O0 -g -std=c++11)
 
+add_executable(courseSchedule src/207_courseSchedule.cpp)
+target_compile_options(courseSchedule  PUBLIC -O0 -g -std=c++11)
+
+
