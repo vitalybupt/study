@@ -26,4 +26,7 @@ target_compile_options(addingBinary  PUBLIC -O0 -g -std=c++11)
 add_executable(courseSchedule src/207_courseSchedule.cpp)
 target_compile_options(courseSchedule  PUBLIC -O0 -g -std=c++11)
 
+add_executable(longestPalindrome src/5_longestPalindrome.cc)
+target_compile_options(longestPalindrome  PUBLIC -O0 -g -std=c++11)
+
 
