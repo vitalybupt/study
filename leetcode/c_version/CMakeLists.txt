@@ -41,3 +41,6 @@ target_compile_options(maxProfit2 PUBLIC -O0 -g  --std=gnu99)
 
 add_executable(gasStation src/134_gasStation.c)
 target_compile_options(gasStation PUBLIC -O0 -g  --std=gnu99)
+
+add_executable(recoveryTree src/99_recoveryTree.c)
+target_compile_options(recoveryTree PUBLIC -O0 -g  --std=gnu99)
