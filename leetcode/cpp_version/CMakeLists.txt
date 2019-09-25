@@ -29,4 +29,7 @@ target_compile_options(courseSchedule  PUBLIC -O0 -g -std=c++11)
 add_executable(longestPalindrome src/5_longestPalindrome.cc)
 target_compile_options(longestPalindrome  PUBLIC -O0 -g -std=c++11)
 
+add_executable(revertInteger src/7_revertInteger.cc)
+target_compile_options(revertInteger  PUBLIC -O0 -g -std=c++11)
+
 
