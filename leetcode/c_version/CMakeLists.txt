@@ -44,3 +44,6 @@ target_compile_options(gasStation PUBLIC -O0 -g  --std=gnu99)
 
 add_executable(recoverTree src/99_recoverTree.c)
 target_compile_options(recoverTree PUBLIC -O0 -g  --std=gnu99)
+
+add_executable(containerWithWater src/11_containerWithWater.c)
+target_compile_options(containerWithWater PUBLIC -O0 -g  --std=gnu99)
