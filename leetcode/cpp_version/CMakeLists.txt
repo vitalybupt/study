@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.11)
 
-add_executable(2sums src/2sums.cpp)
-target_compile_options(2sums PUBLIC -Os)
+add_executable(2sums src/1_twoSums.cc)
+target_compile_options(2sums PUBLIC -O0 -g -std=c++11)
 
 add_executable(addTwoNumbers src/addTwoNumbers.cpp)
 target_compile_options(addTwoNumbers PUBLIC -Os)
