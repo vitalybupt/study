@@ -29,6 +29,9 @@ public:
 
 	rad = calRad(index, dict2);
 	int length2 = expand(s, index - rad , index + rad + 1, &pos2);
+	if(index == 495) {
+	  std::cout << "length2 " << length2 <<std::endl;
+	}
 	dict1.push_back(length1/2);dict2.push_back(length2/2);
 	if(length1 > length2) {
 	  if(index + length1/2 > curCenter + curDiameter/2) {
@@ -50,6 +53,7 @@ public:
 	  }
 	}
       }
+      std::cout << startPos<< std::endl;
       return s.substr(startPos, maxLength);
     }
 private:

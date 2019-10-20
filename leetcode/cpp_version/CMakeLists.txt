@@ -32,5 +32,8 @@ target_compile_options(longestPalindrome  PUBLIC -O0 -g -std=c++11)
 add_executable(revertInteger src/7_revertInteger.cc)
 target_compile_options(revertInteger  PUBLIC -O0 -g -std=c++11)
 
+add_executable(3sum src/15_3sum.cc)
+target_compile_options(3sum  PUBLIC -O0 -g -std=c++11)
+
 
 
