@@ -6,35 +6,38 @@ using std::string;
 class Solution {
 public:
     bool isMatch(string s, string p) {
-      int match = false;
       row = s.length();
       col = p.length();
       
-      P = new bool*[s.length()];
-      for(int i = 0; i < s.length(); i++) {
-	P[i] = new bool[p.length()];
+      P = new bool*[row+1];
+      for(int i = 0; i < row + 1; i++) {
+	P[i] = new bool[col];
       }
-      for(int i = 0; i < s.length(); i++) {
-	for(int j = 0; j < p.length(); j++) {
+      for(int i = 0; i < row + 1; i++) {
+	for(int j = 0; j < col + 1; j++) {
 	  P[i][j] = false;
 	}
       }
       P[0][0] = true;
 
-      for(int i = 0; i < s.length(); i++) {
+      for(int j = 1; j < col + 1; j++) 
+	if(p[j-1] == '*' && P[0][j-1] == true)
+	  P[0][j] = true;
+      
+      for(int i = 1; i < row + 1; i++) {
 	bool subStrMatch = false;
-	for(int j = 0; j < p.length(); j++) {
-	  if(p[j] == s[i] && P[i-1][j-1] == true) {
+	for(int j = 1; j < col + 1; j++) {
+	  if(p[j-1] == s[i-1] && P[i-1][j-1] == true) {
 	    P[i][j] = true; subStrMatch = true; continue;
-	  } else if(p[j] == '-' && P[i-1][j-1] == true) {
+	  } else if(p[j-1] == '-' && P[i-1][j-1] == true) {
 	    P[i][j] = true; subStrMatch = true; continue;
-	  } else if(p[j] == '*' && P[i-1][j] == true) {
+	  } else if(p[j-1] == '*' && P[i-1][j] == true) {
 	    P[i][j] = true; subStrMatch = true; continue;
 	  }
 	}
 	if(subStrMatch == false) {cleanup(); return false;}
       }
-      return match;
+      return P[row][col];
     }
 
 private:
@@ -53,9 +56,14 @@ private:
 
 int main() {
   class Solution sol;
-  string  input = "aa";
-  string pattern = "a";
+  string  input = "ab";
+  string pattern = "a*";
   bool ret = sol.isMatch(input, pattern);
-  //std::cout << ret ? "match" : "not match" << std::endl;
+  std::cout << (ret == true ? "match" : "not match") << std::endl;
   return 0;
 }
+
+
+
+
+
