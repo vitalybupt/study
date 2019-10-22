@@ -3,14 +3,26 @@ cmake_minimum_required(VERSION 2.8.11)
 add_executable(2sums src/1_twoSums.cc)
 target_compile_options(2sums PUBLIC -O0 -g -std=c++11)
 
+add_executable(longestSubStr src/3_longestSubString.cc)
+target_compile_options(longestSubStr PUBLIC -O0 -g -std=c++11)
+
 add_executable(revertInteger src/7_revertInteger.cc)
 target_compile_options(revertInteger  PUBLIC -O0 -g -std=c++11)
 
 add_executable(longestPalindrome src/5_longestPalindrome.cc)
 target_compile_options(longestPalindrome  PUBLIC -O0 -g -std=c++11)
 
+add_executable(REmatch src/10_REmatch.cc)
+target_compile_options(REmatch  PUBLIC -O0 -g -std=c++11)
+
 add_executable(threeSums src/15_threeSums.cc)
 target_compile_options(threeSums  PUBLIC -O0 -g -std=c++11)
+
+add_executable(threeSumCloset src/16_threeSumCloset.cc)
+target_compile_options(threeSumCloset  PUBLIC -O0 -g -std=c++11)
+
+add_executable(fourSum src/18_fourSum.cc)
+target_compile_options(fourSum  PUBLIC -O0 -g -std=c++11)
 
 add_executable(courseSchedule src/207_courseSchedule.cpp)
 target_compile_options(courseSchedule  PUBLIC -O0 -g -std=c++11)
