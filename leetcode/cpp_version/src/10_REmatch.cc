@@ -11,7 +11,7 @@ public:
       
       P = new bool*[row+1];
       for(int i = 0; i < row + 1; i++) {
-	P[i] = new bool[col];
+	P[i] = new bool[col+1];
       }
       for(int i = 0; i < row + 1; i++) {
 	for(int j = 0; j < col + 1; j++) {
@@ -20,8 +20,8 @@ public:
       }
       P[0][0] = true;
 
-      for(int j = 1; j < col + 1; j++) 
-	if(p[j-1] == '*' && P[0][j-1] == true)
+      for(int j = 2; j < col + 1; j+=2) 
+	if(p[j-1] == '*' && P[0][j-2] == true)
 	  P[0][j] = true;
       
       for(int i = 1; i < row + 1; i++) {
@@ -29,9 +29,9 @@ public:
 	for(int j = 1; j < col + 1; j++) {
 	  if(p[j-1] == s[i-1] && P[i-1][j-1] == true) {
 	    P[i][j] = true; subStrMatch = true; continue;
-	  } else if(p[j-1] == '-' && P[i-1][j-1] == true) {
+	  } else if(p[j-1] == '.' && P[i-1][j-1] == true) {
 	    P[i][j] = true; subStrMatch = true; continue;
-	  } else if(p[j-1] == '*' && P[i-1][j] == true) {
+	  } else if(p[j-1] == '*' && (P[i][j-1] == true || P[i][j-2] == true|| (P[i-1][j] == true && (p[j-2] == s[i-1] || p[j-2] == '.')))) {
 	    P[i][j] = true; subStrMatch = true; continue;
 	  }
 	}
@@ -56,8 +56,8 @@ private:
 
 int main() {
   class Solution sol;
-  string  input = "ab";
-  string pattern = "a*";
+  string  input = "aaa";
+  string pattern = ".*";
   bool ret = sol.isMatch(input, pattern);
   std::cout << (ret == true ? "match" : "not match") << std::endl;
   return 0;
