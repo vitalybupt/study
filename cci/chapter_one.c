@@ -3,9 +3,10 @@
 #include <stdbool.h>
 #include <string.h>
 #include <assert.h>
-
+#include <stdio.h>
 #include "chapter_one.h"
 
+#include "arraylist.h"
 bool checkdup(const char* cstr) {
   bool ret = true;
   if(strlen(cstr) > 128) return false;
@@ -130,4 +131,29 @@ bool checkoneway(const char* s1, const char* s2) {
   else if(strlen(s1) == strlen(s2))
     return checkreplace(s1, s2);
   return false;
+}
+
+char* compressString(const char*s) {
+    pArrayList compressStr = create_arraylist();
+    unsigned int subcount = 1;
+    
+    for(unsigned int i = 0; i < strlen(s); ++i) {
+        if(s[i+1] == s[i]) {
+            subcount++;
+            continue;
+        }
+        char tmp[32];
+        sprintf(tmp, "%c%d", s[i], subcount);
+        append_arraylist(compressStr, tmp);
+        subcount = 1;
+    }
+    if(getlen_arraylist(compressStr) >= strlen(s)) {
+        free_arraylist(compressStr);
+        free(compressStr);
+        return strdup(s);
+    }
+    char *str = tostring_arraylist(compressStr);
+    free_arraylist(compressStr);
+    free(compressStr);
+    return str;
 }

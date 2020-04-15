@@ -7,7 +7,7 @@
 
 #include "list.h"
 #include "varray.h"
-
+#include "arraylist.h"
 #include "chapter_one.h"
 
 static void test_chapter_one(){
@@ -33,6 +33,13 @@ static void test_chapter_one(){
   assert( true == checkoneway("pales", "pale"));
   assert( true == checkoneway("pale", "bale"));
   assert( false == checkoneway("pale", "bake"));
+
+  char *compressStr = compressString("aabbbc");
+  printf("%s\r\n", compressStr);
+  free(compressStr);
+  compressStr = compressString("aabbbccceeee");
+  printf("%s\r\n", compressStr);
+  free(compressStr);
   
   return;
 }
@@ -63,6 +70,19 @@ int main() {
   free_varray(va);
   free(va);
 
+  pArrayList strings = create_arraylist();
+  append_arraylist(strings, "this");
+  append_arraylist(strings, " is test");
+  append_arraylist(strings, " for strings");
+  char* cstr_strings = tostring_arraylist(strings);
+  printf("%s\r\n", cstr_strings);
+  for(int i = 0; i < 17; ++i)
+      append_arraylist(strings, "test");
+  append_arraylist(strings, "test");
+  free(cstr_strings);
+  free_arraylist(strings);
+  free(strings);
+    
   test_chapter_one();
   return 0;
 }
