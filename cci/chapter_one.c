@@ -133,7 +133,7 @@ bool checkoneway(const char* s1, const char* s2) {
   return false;
 }
 
-char* compressString(const char*s) {
+char* chapter_one_compress_string(const char*s) {
     pArrayList compressStr = create_arraylist();
     unsigned int subcount = 1;
     
@@ -143,7 +143,7 @@ char* compressString(const char*s) {
             continue;
         }
         char tmp[32];
-        sprintf(tmp, "%c%d", s[i], subcount);
+        sprintf(tmp, "%c%u", s[i], subcount);
         append_arraylist(compressStr, tmp);
         subcount = 1;
     }
@@ -156,4 +156,29 @@ char* compressString(const char*s) {
     free_arraylist(compressStr);
     free(compressStr);
     return str;
+}
+
+#define _matrix_index(m, r, c, d) (unsigned*)(m+(r*d+c))
+static void swap_matrix_element(unsigned *a, unsigned *b){
+  *a = (*a)^(*b);
+  *b = (*a)^(*b);
+  *a = (*a)^(*b);
+}
+
+void chapter_one_rotate_matrix(void* matrix, unsigned row, unsigned d) {
+  unsigned *m = (unsigned *)matrix;
+
+  for(unsigned r = 0; r < row; ++r) {
+    for(unsigned c = r+1; c < d; ++c){
+      swap_matrix_element(_matrix_index(m,r,c,d), _matrix_index(m,c,r,d));
+    }
+  }
+
+  for(unsigned r = 0; r < row; ++r) {
+    for(unsigned c = 0; c < d/2; ++c ) {
+      swap_matrix_element(_matrix_index(m,r,c,d), _matrix_index(m,r,d-c-1,d));
+    }
+  }
+
+  return;
 }

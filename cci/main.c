@@ -8,7 +8,9 @@
 #include "list.h"
 #include "varray.h"
 #include "arraylist.h"
+#include "matrixbuilder.h"
 #include "chapter_one.h"
+#include "hard.h"
 
 static void test_chapter_one(){
   assert(checkdup("abcd") == true);
@@ -34,16 +36,29 @@ static void test_chapter_one(){
   assert( true == checkoneway("pale", "bale"));
   assert( false == checkoneway("pale", "bake"));
 
-  char *compressStr = compressString("aabbbc");
+  char *compressStr = chapter_one_compress_string("aabbbc");
   printf("%s\r\n", compressStr);
   free(compressStr);
-  compressStr = compressString("aabbbccceeee");
+  compressStr = chapter_one_compress_string("aabbbccceeee");
   printf("%s\r\n", compressStr);
   free(compressStr);
-  
+
+  unsigned int (*matrix)[3] = (unsigned int (*)[3])create_random_matrix(3, 3);
+  dump_matrix(matrix, 3, 3);
+  chapter_one_rotate_matrix(matrix, 3, 3);
+  dump_matrix(matrix, 3, 3);
+  free_matrix(matrix);
+
   return;
 }
 
+static void test_hard() {
+  {
+    unsigned a = 10; unsigned b = 20;
+    swap_unsigned(&a, &b);
+    assert(a == 20 && b == 10);
+  }
+}
 int main() {
   plist l = create_list();
 
@@ -82,7 +97,7 @@ int main() {
   free(cstr_strings);
   free_arraylist(strings);
   free(strings);
-    
   test_chapter_one();
+  test_hard();
   return 0;
 }
