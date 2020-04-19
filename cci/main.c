@@ -134,6 +134,41 @@ static void test_chapter_two(){
     list_free(l);
     free(l);
   }
+
+  {
+    plist l1 = list_create(LIST_TYPE_INTEGER);
+    plist l2 = list_create(LIST_TYPE_INTEGER);
+
+    /* list_push_integer(l1, 7); list_push_integer(l1, 1); list_push_integer(l1, 6); */
+    /* list_push_integer(l1, 5); list_push_integer(l2, 9); list_push_integer(l2, 2); */
+
+    list_push_integer(l1, 2); list_push_integer(l1, 1); list_push_integer(l1, 6);
+    list_push_integer(l2, 3); list_push_integer(l2, 4); list_push_integer(l2, 2);
+
+    plist sum = sum_list_1(l1, l2);
+    assert(sum->len == 3 && list_get_integer_value(sum, 1) == 5 && list_get_integer_value(sum, 2) == 5 && list_get_integer_value(sum, 3) == 8);
+    list_free(l1);
+    free(l1);
+    list_free(l2);
+    free(l2);
+    list_free(sum);
+    free(sum);
+
+    plist l3 = list_create(LIST_TYPE_INTEGER);
+    plist l4 = list_create(LIST_TYPE_INTEGER);
+
+    list_push_integer(l3, 7); list_push_integer(l3, 1); list_push_integer(l3, 6);
+    list_push_integer(l4, 5); list_push_integer(l4, 9); list_push_integer(l4, 2);
+
+    plist sum2 = sum_list_1(l3, l4);
+    assert(sum2->len == 3 && list_get_integer_value(sum2, 1) == 2 && list_get_integer_value(sum2, 1) == 5 && list_get_integer_value(sum2, 3) == 9);
+    list_free(l3);
+    free(l3);
+    list_free(l4);
+    free(l4);
+    list_free(sum2);
+    free(sum2);
+  }
 }
 
 static void test_hard() {

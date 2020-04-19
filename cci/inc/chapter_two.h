@@ -4,4 +4,5 @@ void remove_dup(plist l1, plist l2);
 pnode reverse_count(plist l, unsigned count);
 void delete_middle_node(plist l, pnode n);
 void partition_list(plist l, unsigned long pivot);
+plist sum_list_1(plist l1, plist l2);
 #endif
