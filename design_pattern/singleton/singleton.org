@@ -1,0 +1,5 @@
+* when to use singleton:
+se a Singleton if *You need to have one and only one object of a type in system*
+* refrence
+[[https://stackoverflow.com/questions/1008019/c-singleton-design-pattern][singleton pattern]]
+

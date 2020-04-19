@@ -4,6 +4,8 @@
 #include <time.h>
 #include <assert.h>
 
+#include "matrixbuilder.h"
+
 void* create_matrix(unsigned int row, unsigned col) {
   assert(row != 0 && col != 0);
   void* matrix = malloc(sizeof(unsigned int)*row*col);
@@ -14,7 +16,7 @@ void* create_matrix(unsigned int row, unsigned col) {
 void* create_random_matrix(unsigned int row, unsigned int col) {
   void* matrix = create_matrix(row, col);
   srand(time(0));
-  for(int i = 0; i < row*col; ++i) {
+  for(unsigned int i = 0; i < row*col; ++i) {
     ((unsigned int*)matrix)[i] = rand()%100;
   }
   return matrix;

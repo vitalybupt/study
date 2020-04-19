@@ -9,7 +9,7 @@ static void expand_varray(pvarray a) {
 
   a->val = realloc(a->val, sizeof(char)*newcap);
   memset(a->val+oldcap, 0, oldcap);
-  a->cap - newcap;
+  a->cap = newcap;
   return; 
 }
 

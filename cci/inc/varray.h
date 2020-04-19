@@ -5,8 +5,8 @@
 
 typedef struct {
   char *val;
-  int len;
-  int cap;
+  unsigned int len;
+  unsigned int cap;
 } varray, *pvarray;
 
 pvarray create_varray();

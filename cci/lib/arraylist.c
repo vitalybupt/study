@@ -27,7 +27,7 @@ void append_arraylist(pArrayList a, const char* s) {
 }
 
 void free_arraylist(pArrayList a) {
-    for(int i = 0; i < a->size; ++i) {
+    for(unsigned int i = 0; i < a->size; ++i) {
         free(a->val[i]);
     }
     free(a->val);
@@ -50,11 +50,29 @@ char* tostring_arraylist(pArrayList a) {
     
     unsigned int sublen = 0;
     
-    for(int i = 0; i < a->size; ++i) {
+    for(unsigned int i = 0; i < a->size; ++i) {
         memmove(tmp+sublen, a->val[i], strlen(a->val[i]));
         sublen += strlen(a->val[i]);
     }
     
     return tmp;
     
+}
+
+void stringbuilder_test() {
+  pArrayList strings = create_arraylist();
+  append_arraylist(strings, "this");
+  append_arraylist(strings, " is test");
+  append_arraylist(strings, " for strings");
+  char* cstr_strings = tostring_arraylist(strings);
+  assert(strcmp(cstr_strings, "this is test for strings") == 0);
+
+  for(int i = 0; i < 17; ++i)
+      append_arraylist(strings, "test");
+  append_arraylist(strings, "test");
+  free(cstr_strings);
+  free_arraylist(strings);
+  free(strings);
+
+  return;
 }

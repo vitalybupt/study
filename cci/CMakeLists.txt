@@ -11,6 +11,7 @@ if (CMAKE_C_CPPCHECK)
     list(
         APPEND CMAKE_C_CPPCHECK 
             "--enable=warning"
+	    "--enable=style"	
             "--inconclusive"
             "--force" 
             "--inline-suppr"
@@ -21,8 +22,7 @@ endif()
 AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR} C_SRCS)
 
 add_executable(cci ${C_SRCS})
-target_compile_options(cci PUBLIC -Os -g -pedantic-errors -ansi -Wextra -Wall
--Winit-self  -Wuninitialized -Wmissing-declarations -Winit-self --std=gnu11)
+target_compile_options(cci PUBLIC -Os -g -pedantic-errors -ansi -Wextra -Wall -Winit-self  -Wuninitialized -Wmissing-declarations -Winit-self --std=gnu11)
 target_link_libraries(cci utils)
 
 

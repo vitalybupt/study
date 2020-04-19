@@ -16,7 +16,7 @@ void free_arraylist(pArrayList a);
 char* tostring_arraylist(pArrayList a);
 unsigned int getlen_arraylist(pArrayList a);
 
-
+void stringbuilder_test();
 #endif
 
 
