@@ -21,7 +21,7 @@ static plist create_random_integer_list(unsigned len) {
   plist l = list_create(LIST_TYPE_INTEGER);
   srand(time(0));
   while(len-- > 0)
-    list_push_integer(l, rand()%100);
+    list_push_back_integer(l, rand()%100);
 
   return l;   
 }
@@ -69,32 +69,32 @@ static void test_chapter_one(){
   return;
 }
 
-static void test_chapter_two(){
-  {
-    
-    plist l1 = list_create(LIST_TYPE_INTEGER);
-    plist l2 = list_create(LIST_TYPE_INTEGER);
+static void test_chapter_two() {
+        /* remove duplicate */ 
+    {
+      plist l1 = list_create(LIST_TYPE_INTEGER);
+      plist l2 = list_create(LIST_TYPE_INTEGER);
 
-    list_push_integer(l1, 1);
-    list_push_integer(l1, 5);
-    list_push_integer(l1, 10);
-    list_push_integer(l1, 23);
-    list_push_integer(l1, 19);
+      list_push_back_integer(l1, 1);
+      list_push_back_integer(l1, 5);
+      list_push_back_integer(l1, 10);
+      list_push_back_integer(l1, 23);
+      list_push_back_integer(l1, 19);
+      
+      list_push_back_integer(l2, 3);
+      list_push_back_integer(l2, 6);
+      list_push_back_integer(l2, 5);
+      list_push_back_integer(l2, 11);
+      list_push_back_integer(l2, 22);
+      list_push_back_integer(l2, 19);
 
-    list_push_integer(l2, 3);
-    list_push_integer(l2, 6);
-    list_push_integer(l2, 5);
-    list_push_integer(l2, 11);
-    list_push_integer(l2, 22);
-    list_push_integer(l2, 19);
-
-    remove_dup(l1, l2);
-    assert(l2->len == 4);
-    list_free(l1);
-    free(l1);
-    list_free(l2);
-    free(l2);
-  }
+      remove_dup(l1, l2);
+      assert(l2->len == 4);
+      list_free(l1);
+      free(l1);
+      list_free(l2);
+      free(l2);
+    }
 
   {
     plist l = create_random_integer_list(16);
@@ -118,7 +118,7 @@ static void test_chapter_two(){
 
   {
     plist l = create_random_integer_list(15);
-    list_push_integer(l, 20);
+    list_push_back_integer(l, 20);
     partition_list(l, 50);
     assert(l->len == 16);
     pnode n = l->head;
@@ -139,11 +139,8 @@ static void test_chapter_two(){
     plist l1 = list_create(LIST_TYPE_INTEGER);
     plist l2 = list_create(LIST_TYPE_INTEGER);
 
-    /* list_push_integer(l1, 7); list_push_integer(l1, 1); list_push_integer(l1, 6); */
-    /* list_push_integer(l1, 5); list_push_integer(l2, 9); list_push_integer(l2, 2); */
-
-    list_push_integer(l1, 2); list_push_integer(l1, 1); list_push_integer(l1, 6);
-    list_push_integer(l2, 3); list_push_integer(l2, 4); list_push_integer(l2, 2);
+    list_push_back_integer(l1, 2); list_push_back_integer(l1, 1); list_push_back_integer(l1, 6);
+    list_push_back_integer(l2, 3); list_push_back_integer(l2, 4); list_push_back_integer(l2, 2);
 
     plist sum = sum_list_1(l1, l2);
     assert(sum->len == 3 && list_get_integer_value(sum, 1) == 5 && list_get_integer_value(sum, 2) == 5 && list_get_integer_value(sum, 3) == 8);
@@ -157,11 +154,11 @@ static void test_chapter_two(){
     plist l3 = list_create(LIST_TYPE_INTEGER);
     plist l4 = list_create(LIST_TYPE_INTEGER);
 
-    list_push_integer(l3, 7); list_push_integer(l3, 1); list_push_integer(l3, 6);
-    list_push_integer(l4, 5); list_push_integer(l4, 9); list_push_integer(l4, 2);
+    list_push_back_integer(l3, 7); list_push_back_integer(l3, 1); list_push_back_integer(l3, 6);
+    list_push_back_integer(l4, 5); list_push_back_integer(l4, 9); list_push_back_integer(l4, 2);
 
     plist sum2 = sum_list_1(l3, l4);
-    assert(sum2->len == 3 && list_get_integer_value(sum2, 1) == 2 && list_get_integer_value(sum2, 1) == 5 && list_get_integer_value(sum2, 3) == 9);
+    assert(list_get_integer_value(sum2, 1) == 2 && list_get_integer_value(sum2, 2) == 1 && list_get_integer_value(sum2, 3) == 9);
     list_free(l3);
     free(l3);
     list_free(l4);
@@ -169,6 +166,85 @@ static void test_chapter_two(){
     list_free(sum2);
     free(sum2);
   }
+
+    {
+    plist l1 = list_create(LIST_TYPE_INTEGER);
+    plist l2 = list_create(LIST_TYPE_INTEGER);
+
+    list_push_back_integer(l1, 2); list_push_back_integer(l1, 1); list_push_back_integer(l1, 6);
+    list_push_back_integer(l2, 3); list_push_back_integer(l2, 4); list_push_back_integer(l2, 2);
+
+    plist sum = sum_list_2(l1, l2);
+    assert(sum->len == 3 && list_get_integer_value(sum, 1) == 5 && list_get_integer_value(sum, 2) == 5 && list_get_integer_value(sum, 3) == 8);
+    list_free(l1);
+    free(l1);
+    list_free(l2);
+    free(l2);
+    list_free(sum);
+    free(sum);
+
+    plist l3 = list_create(LIST_TYPE_INTEGER);
+    plist l4 = list_create(LIST_TYPE_INTEGER);
+
+    list_push_back_integer(l3, 7); list_push_back_integer(l3, 1); list_push_back_integer(l3, 6);
+    list_push_back_integer(l4, 5); list_push_back_integer(l4, 9); list_push_back_integer(l4, 2);
+
+    plist sum2 = sum_list_2(l3, l4);
+    assert(sum2->len == 4 && list_get_integer_value(sum2, 1) == 1 && list_get_integer_value(sum2, 2) == 3 && list_get_integer_value(sum2, 3) == 0 && list_get_integer_value(sum2, 4) == 8);
+    list_free(l3);
+    free(l3);
+    list_free(l4);
+    free(l4);
+    list_free(sum2);
+    free(sum2);
+  }
+    
+    if(1){
+        plist l1 = list_create(LIST_TYPE_INTEGER);
+        list_push_back_integer(l1, 1);
+        list_push_back_integer(l1, 5);
+        list_push_back_integer(l1, 10);
+        list_push_back_integer(l1, 23);
+        list_push_back_integer(l1, 19);
+        assert(check_palindrome(l1) == false);
+        list_free(l1);free(l1);
+
+        plist l2 = list_create(LIST_TYPE_INTEGER);
+        list_push_back_integer(l2, 1);
+        list_push_back_integer(l2, 5);
+        list_push_back_integer(l2, 10);
+        list_push_back_integer(l2, 5);
+        list_push_back_integer(l2, 1);
+        assert(check_palindrome(l2)== true);
+        list_free(l2);free(l2);
+
+        plist l3 = list_create(LIST_TYPE_INTEGER);
+        list_push_back_integer(l3, 1);
+        list_push_back_integer(l3, 5);
+        list_push_back_integer(l3, 5);
+        list_push_back_integer(l3, 1);
+        assert(check_palindrome(l3) == true);
+        list_free(l3);free(l3);
+    }
+
+    if(1) {
+        plist l1 = create_random_integer_list(15);
+        pnode n = list_get(l1, 10);
+        plist l2 = create_random_integer_list(16);
+        pnode n2 = list_get(l2, 16);
+        assert(n2->next == NULL);
+        n2->next = n;
+        list_update_size(l2);
+        assert(l2->len == 22);
+        assert(check_intersection(l1, l2) == n);
+
+        n2->next = NULL;
+        list_update_size(l2);
+        assert(l2->len == 16);
+        
+        list_free(l1); free(l1);
+        list_free(l2); free(l2);
+    }
 }
 
 static void test_hard() {

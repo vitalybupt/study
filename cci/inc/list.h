@@ -22,14 +22,19 @@ typedef struct list {
 } list, *plist;
 
 plist list_create(list_type t);
-pnode list_get(plist l, unsigned n);
-pnode list_push_string(plist l, char* val);
 
-pnode list_push_integer(plist l, unsigned long val);
+pnode list_push_back_string(plist l, char* val);
+pnode list_push_back_integer(plist l, unsigned long val);
+pnode list_push_back_map(plist l, void *key, void *value, size_t value_len);
+
+pnode list_push_front_string(plist l, char* val);
+pnode list_push_front_integer(plist l, unsigned long val);
+pnode list_push_front_map(plist l, void *key, void *value, size_t value_len);
+
+pnode list_get(plist l, unsigned n);
 unsigned long list_get_integer_value(plist l, unsigned n);
 
-pnode list_push_map(plist l, void *key, void *value, size_t value_len);
-
+void list_update_size(plist l);
 void list_swap_node(plist l, pnode n1, pnode n2);
 pnode list_remove_node(plist l, pnode p, pnode n);
 void list_dump(plist l);

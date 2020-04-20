@@ -16,6 +16,17 @@ plist list_create(list_type t) {
   return l;
 }
 
+void list_update_size(plist l) {
+    unsigned len = 0;
+    pnode n = l->head;
+    while(n) {
+        n = n->next;
+        ++len;
+    }
+    l->len = len;
+    return;
+}
+
 pnode list_get(plist l, unsigned n) {
   assert(l != NULL && l->type == LIST_TYPE_INTEGER && n <= l->len );
   pnode node = l->head;
@@ -31,26 +42,7 @@ unsigned long list_get_integer_value(plist l, unsigned n) {
   return (unsigned long)(node->key);
 }
 
-pnode list_push_string(plist l, char* s) {
-  assert(l != NULL && l->type == LIST_TYPE_STRING && s != NULL);
-
-  pnode n = malloc(sizeof(node));
-  n->key = strdup(s);
-  n->value = NULL;
-  n->next = NULL;
-  
-  if(l->head == NULL) {
-    l->head = n;
-  } else {
-    pnode tmp = l->head;
-    while(tmp->next != NULL) tmp = tmp->next;
-    tmp->next = n; 
-  }
-  l->len++;
-  return n;
-}
-
-static pnode list_push_generic(plist l, void* key, void *value, size_t value_len) {
+static pnode list_push_back_generic(plist l, void* key, void *value, size_t value_len) {
   pnode n = malloc(sizeof(node));
   n->key = key;
   if(value && value_len > 0) {
@@ -70,14 +62,54 @@ static pnode list_push_generic(plist l, void* key, void *value, size_t value_len
   return n;
 }
 
-pnode list_push_map(plist l, void* key, void *value, size_t value_len) {
-  assert(l != NULL && ((l->type == LIST_TYPE_MAP && value != NULL) || (l->type == LIST_TYPE_SET && value == NULL)));
-  return list_push_generic(l, key, value, value_len);
+pnode list_push_back_string(plist l, char* s) {
+  assert(l != NULL && l->type == LIST_TYPE_STRING && s != NULL);
+  return list_push_back_generic(l, (void*)strdup(s), NULL, 0);
 }
 
-pnode list_push_integer(plist l, unsigned long val) {
+pnode list_push_back_map(plist l, void* key, void *value, size_t value_len) {
+  assert(l != NULL && ((l->type == LIST_TYPE_MAP && value != NULL) || (l->type == LIST_TYPE_SET && value == NULL)));
+  return list_push_back_generic(l, key, value, value_len);
+}
+
+pnode list_push_back_integer(plist l, unsigned long val) {
   assert( l != NULL && l->type == LIST_TYPE_INTEGER);
-  return list_push_generic(l, (void*)val, NULL, 0);
+  return list_push_back_generic(l, (void*)val, NULL, 0);
+}
+
+
+static pnode list_push_front_generic(plist l, void* key, void *value, size_t value_len) {
+  pnode n = malloc(sizeof(node));
+  n->key = key;
+  if(value && value_len > 0) {
+    n->value = malloc(value_len);
+    memcpy(n->value, value, value_len);
+  }
+  
+  if(l->head == NULL) {
+    l->head = n;
+    n->next = NULL;
+  } else {
+      n->next = l->head;
+      l->head = n;
+  }
+  l->len++;
+  return n;
+}
+
+pnode list_push_front_string(plist l, char* s) {
+  assert(l != NULL && l->type == LIST_TYPE_STRING && s != NULL);
+  return list_push_front_generic(l, (void*)strdup(s), NULL, 0);
+}
+
+pnode list_push_front_map(plist l, void* key, void *value, size_t value_len) {
+  assert(l != NULL && ((l->type == LIST_TYPE_MAP && value != NULL) || (l->type == LIST_TYPE_SET && value == NULL)));
+  return list_push_front_generic(l, key, value, value_len);
+}
+
+pnode list_push_front_integer(plist l, unsigned long val) {
+  assert( l != NULL && l->type == LIST_TYPE_INTEGER);
+  return list_push_front_generic(l, (void*)val, NULL, 0);
 }
 
 
@@ -146,7 +178,7 @@ void list_test() {
     char input[] = "test this string";
     char* ptr = strtok(input, " ");
     while(ptr != NULL) {
-      list_push_string(l, ptr);
+      list_push_back_string(l, ptr);
       ptr = strtok(NULL, " ");
     }
     
@@ -158,10 +190,21 @@ void list_test() {
   {
     plist l = list_create(LIST_TYPE_INTEGER);
 
-    list_push_integer(l, 1);    list_push_integer(l, 3);     list_push_integer(l, 5);
+    list_push_back_integer(l, 1);    list_push_back_integer(l, 3);     list_push_back_integer(l, 5);
     assert(l->len == 3 && list_get_integer_value(l, 3) == 5);
     list_free(l);
     free(l);
   }
+
+  {
+    plist l = list_create(LIST_TYPE_INTEGER);
+
+    list_push_front_integer(l, 1);    list_push_front_integer(l, 3);     list_push_front_integer(l, 5);
+    assert(l->len == 3 && list_get_integer_value(l, 3) == 1);
+    list_free(l);
+    free(l);
+  }
+
+  
   return;
 }

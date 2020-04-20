@@ -16,7 +16,7 @@ void hashtable_insert_map(phashtable h, unsigned long key, void *value, unsigned
   if(!h->table[hashbucket]) {
     h->table[hashbucket] = list_create(LIST_TYPE_MAP);
   }
-  list_push_map(h->table[hashbucket], (void*)key, value, value_len);
+  list_push_back_map(h->table[hashbucket], (void*)key, value, value_len);
   return;
 }
 
@@ -37,7 +37,7 @@ void hashtable_insert_set(phashtable h, unsigned long key) {
   if(!h->table[hashbucket]) {
     h->table[hashbucket] = list_create(LIST_TYPE_SET);
   }
-  list_push_map(h->table[hashbucket], (void*)key, NULL, 0);
+  list_push_back_map(h->table[hashbucket], (void*)key, NULL, 0);
   return;
 }
 
