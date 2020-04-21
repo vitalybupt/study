@@ -140,12 +140,12 @@ plist sum_list_2(plist l1, plist l2) {
     plist carriers = list_create(LIST_TYPE_INTEGER);
 
     unsigned max_len = l1->len > l2->len? l1->len :l2->len;
-    unsigned long s = 0; unsigned long c = 0;
+    unsigned long s; unsigned long c;
     bool has_carrier = false;
         
     for(unsigned i = 1; i <= max_len; ++i) {
-        unsigned l1_index = l1->len - max_len +i;
-        unsigned l2_index = l2->len - max_len +i;
+        int l1_index = l1->len - max_len +i;
+        int l2_index = l2->len - max_len +i;
         if(l1_index <= 0 && l2_index > 0) {
             s = list_get_integer_value(l2, l2_index);
             c = 0;
@@ -197,6 +197,8 @@ bool check_palindrome(plist l) {
         n = n->next;
         m = m->next;
     }
+    list_free(first_half);
+    free(first_half);
     return ret;
 }
 

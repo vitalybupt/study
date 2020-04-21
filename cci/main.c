@@ -15,6 +15,7 @@
 
 #include "chapter_one.h"
 #include "chapter_two.h"
+#include "chapter_three.h"
 #include "hard.h"
 
 static plist create_random_integer_list(unsigned len) {
@@ -247,6 +248,10 @@ static void test_chapter_two() {
     }
 }
 
+static void test_chapter_three () {
+  multiple_stacks();
+}
+
 static void test_hard() {
   {
     unsigned a = 10; unsigned b = 20;
@@ -272,6 +277,7 @@ int main() {
   
   test_chapter_one();
   test_chapter_two();
+  test_chapter_three();
   test_hard();
   return 0;
 }

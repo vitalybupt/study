@@ -52,11 +52,10 @@ static pnode list_push_back_generic(plist l, void* key, void *value, size_t valu
   n->next = NULL;
   
   if(l->head == NULL) {
-    l->head = n;
+    l->head = l->tail = n;
   } else {
-    pnode tmp = l->head;
-    while(tmp->next != NULL) tmp = tmp->next;
-    tmp->next = n; 
+    l->tail->next = n;
+    l->tail = n;
   }
   l->len++;
   return n;
@@ -87,7 +86,7 @@ static pnode list_push_front_generic(plist l, void* key, void *value, size_t val
   }
   
   if(l->head == NULL) {
-    l->head = n;
+    l->head =l->tail = n;
     n->next = NULL;
   } else {
       n->next = l->head;

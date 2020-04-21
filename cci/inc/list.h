@@ -17,6 +17,7 @@ typedef struct node {
 
 typedef struct list {
   pnode head;
+  pnode tail;
   unsigned int len;
   list_type type;
 } list, *plist;
