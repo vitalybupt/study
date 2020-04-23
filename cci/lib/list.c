@@ -7,8 +7,8 @@
 
 #include "list.h"
 
-plist list_create(list_type t) {
-  plist l = malloc(sizeof(list));
+p_list list_create(list_type t) {
+  p_list l = malloc(sizeof(list));
   if(l == 0) return l;
   l->type = t;
   l->head = NULL;
@@ -16,9 +16,9 @@ plist list_create(list_type t) {
   return l;
 }
 
-void list_update_size(plist l) {
+void list_update_size(p_list l) {
     unsigned len = 0;
-    pnode n = l->head;
+    p_node n = l->head;
     while(n) {
         n = n->next;
         ++len;
@@ -27,23 +27,32 @@ void list_update_size(plist l) {
     return;
 }
 
-pnode list_get(plist l, unsigned n) {
+p_node list_get(p_list l, unsigned n) {
   assert(l != NULL && l->type == LIST_TYPE_INTEGER && n <= l->len );
-  pnode node = l->head;
+  p_node node = l->head;
   while(--n) {
     node = node->next;
   }
   return node;
 }
 
-unsigned long list_get_integer_value(plist l, unsigned n) {
+unsigned long list_get_integer_value(p_list l, unsigned n) {
   assert(l != NULL && l->type == LIST_TYPE_INTEGER && n <= l->len );
-  pnode node = list_get(l, n);
+  p_node node = list_get(l, n);
   return (unsigned long)(node->key);
 }
 
-static pnode list_push_back_generic(plist l, void* key, void *value, size_t value_len) {
-  pnode n = malloc(sizeof(node));
+p_node list_begin(p_list l) {
+  assert(l != NULL);
+  return l->head;
+}
+p_node list_end(p_list l) {
+  assert(l != NULL);
+  return l->tail;
+}
+
+static p_node _list_push_back_generic(p_list l, void* key, void *value, size_t value_len) {
+  p_node n = malloc(sizeof(node));
   n->key = key;
   if(value && value_len > 0) {
     n->value = malloc(value_len);
@@ -61,24 +70,52 @@ static pnode list_push_back_generic(plist l, void* key, void *value, size_t valu
   return n;
 }
 
-pnode list_push_back_string(plist l, char* s) {
+p_node list_push_back_generic(p_list l, void* s) {
+  assert(l != NULL && l->type == LIST_TYPE_GENERIC && s != NULL);
+  return _list_push_back_generic(l, s, NULL, 0);
+}
+
+p_node list_push_back_string(p_list l, char* s) {
   assert(l != NULL && l->type == LIST_TYPE_STRING && s != NULL);
-  return list_push_back_generic(l, (void*)strdup(s), NULL, 0);
+  return _list_push_back_generic(l, (void*)strdup(s), NULL, 0);
 }
 
-pnode list_push_back_map(plist l, void* key, void *value, size_t value_len) {
+p_node list_push_back_map(p_list l, void* key, void *value, size_t value_len) {
   assert(l != NULL && ((l->type == LIST_TYPE_MAP && value != NULL) || (l->type == LIST_TYPE_SET && value == NULL)));
-  return list_push_back_generic(l, key, value, value_len);
+  return _list_push_back_generic(l, key, value, value_len);
 }
 
-pnode list_push_back_integer(plist l, unsigned long val) {
+p_node list_push_back_integer(p_list l, unsigned long val) {
   assert( l != NULL && l->type == LIST_TYPE_INTEGER);
-  return list_push_back_generic(l, (void*)val, NULL, 0);
+  return _list_push_back_generic(l, (void*)val, NULL, 0);
 }
 
+void* list_pop_back_generic(p_list l) {
+  assert(l && l->tail);
+  void* ret;
+  do {
+    if(l->len == 1) {
+      ret = l->tail->key;
+      free(l->tail);
+      l->head = l->tail = NULL;
+    } else {
+      p_node iterator = l->head;
+      while(iterator->next->next) {
+	iterator = iterator->next;
+      }
+      l->tail = iterator;
+      ret = l->tail->next->key;
+      free(l->tail->next);
+      l->tail->next = NULL;
+    }
+  }while(0);
+  
+  l->len -= 1;    
+  return ret;
+}
 
-static pnode list_push_front_generic(plist l, void* key, void *value, size_t value_len) {
-  pnode n = malloc(sizeof(node));
+static p_node _list_push_front_generic(p_list l, void* key, void *value, size_t value_len) {
+  p_node n = malloc(sizeof(node));
   n->key = key;
   if(value && value_len > 0) {
     n->value = malloc(value_len);
@@ -96,23 +133,28 @@ static pnode list_push_front_generic(plist l, void* key, void *value, size_t val
   return n;
 }
 
-pnode list_push_front_string(plist l, char* s) {
+p_node list_push_front_generic(p_list l, void* s) {
+  assert(l != NULL && l->type == LIST_TYPE_GENERIC);
+  return _list_push_front_generic(l, s, NULL, 0);
+}
+
+p_node list_push_front_string(p_list l, char* s) {
   assert(l != NULL && l->type == LIST_TYPE_STRING && s != NULL);
-  return list_push_front_generic(l, (void*)strdup(s), NULL, 0);
+  return _list_push_front_generic(l, (void*)strdup(s), NULL, 0);
 }
 
-pnode list_push_front_map(plist l, void* key, void *value, size_t value_len) {
+p_node list_push_front_map(p_list l, void* key, void *value, size_t value_len) {
   assert(l != NULL && ((l->type == LIST_TYPE_MAP && value != NULL) || (l->type == LIST_TYPE_SET && value == NULL)));
-  return list_push_front_generic(l, key, value, value_len);
+  return _list_push_front_generic(l, key, value, value_len);
 }
 
-pnode list_push_front_integer(plist l, unsigned long val) {
+p_node list_push_front_integer(p_list l, unsigned long val) {
   assert( l != NULL && l->type == LIST_TYPE_INTEGER);
-  return list_push_front_generic(l, (void*)val, NULL, 0);
+  return _list_push_front_generic(l, (void*)val, NULL, 0);
 }
 
 
-void list_swap_node(plist l, pnode n1, pnode n2) {
+void list_swap_node(p_list l, p_node n1, p_node n2) {
   assert(l && n1 &&n2);
   void * tmp_key = n1->key;
   void * tmp_value = n1->value;
@@ -126,10 +168,10 @@ void list_swap_node(plist l, pnode n1, pnode n2) {
   return;  
 }
 
-pnode list_remove_node(plist l, pnode p, pnode n) {
+p_node list_remove_node(p_list l, p_node p, p_node n) {
   assert(l != NULL && n != NULL);
 
-  pnode t = n->next;
+  p_node t = n->next;
   if(p != NULL)
     p->next = t;
 
@@ -138,11 +180,11 @@ pnode list_remove_node(plist l, pnode p, pnode n) {
   return t;
 }
 
-void list_free(plist l) {
+void list_free(p_list l) {
   assert(l != NULL);
-  pnode tmp = l->head;
+  p_node tmp = l->head;
   while(tmp != NULL) {
-    pnode n = tmp->next;
+    p_node n = tmp->next;
     if(l->type == LIST_TYPE_STRING)
       free(tmp->key);
     else if(l->type == LIST_TYPE_MAP) {
@@ -156,9 +198,9 @@ void list_free(plist l) {
   return;
 }
 
-void list_dump(plist l) {
+void list_dump(p_list l) {
   assert(l != NULL);
-  pnode tmp = l->head;
+  p_node tmp = l->head;
   while(tmp != NULL) {
     if(l->type == LIST_TYPE_STRING)
       printf("%s\r\n", (char*)tmp->key);
@@ -172,7 +214,7 @@ void list_dump(plist l) {
 
 void list_test() {
   {
-    plist l = list_create(LIST_TYPE_STRING);
+    p_list l = list_create(LIST_TYPE_STRING);
   
     char input[] = "test this string";
     char* ptr = strtok(input, " ");
@@ -187,7 +229,7 @@ void list_test() {
   }
 
   {
-    plist l = list_create(LIST_TYPE_INTEGER);
+    p_list l = list_create(LIST_TYPE_INTEGER);
 
     list_push_back_integer(l, 1);    list_push_back_integer(l, 3);     list_push_back_integer(l, 5);
     assert(l->len == 3 && list_get_integer_value(l, 3) == 5);
@@ -196,7 +238,7 @@ void list_test() {
   }
 
   {
-    plist l = list_create(LIST_TYPE_INTEGER);
+    p_list l = list_create(LIST_TYPE_INTEGER);
 
     list_push_front_integer(l, 1);    list_push_front_integer(l, 3);     list_push_front_integer(l, 5);
     assert(l->len == 3 && list_get_integer_value(l, 3) == 1);

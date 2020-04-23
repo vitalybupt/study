@@ -26,7 +26,7 @@ void* hashtable_lookup_map(phashtable h, unsigned long key) {
     return NULL;
   }
   
-  for(pnode n = h->table[hashbucket]->head; n; n = n->next) {
+  for(p_node n = h->table[hashbucket]->head; n; n = n->next) {
     if(key == (unsigned long)(n->key)) return n->value;
   }
   return NULL;
@@ -46,7 +46,7 @@ bool hashtable_ismember_set(phashtable h, unsigned long key) {
   if(!h->table[hashbucket]) {
     return false;
   }
-  for(pnode n = h->table[hashbucket]->head; n; n = n->next) {
+  for(p_node n = h->table[hashbucket]->head; n; n = n->next) {
     if(key == (unsigned long)(n->key)) return true;
   }
   return false;
@@ -55,7 +55,7 @@ bool hashtable_ismember_set(phashtable h, unsigned long key) {
 void hashtable_free(phashtable h) {
   assert(h != NULL);
   for(unsigned i = 0; i < NBITS; ++i) {
-    plist l = h->table[i];
+    p_list l = h->table[i];
     if(!l) continue;
     list_free(l);
     free(l);

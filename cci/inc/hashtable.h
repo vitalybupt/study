@@ -8,7 +8,7 @@
 #define PRIME 73
 
 typedef struct {
-  plist table[NBITS];
+  p_list table[NBITS];
   unsigned mask;
 } hashtable, *phashtable;
 

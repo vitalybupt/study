@@ -1,11 +1,11 @@
 #ifndef CHAPTER_TWO_H
 #define CHAPTER_TWO_H
-void remove_dup(plist l1, plist l2);
-pnode reverse_count(plist l, unsigned count);
-void delete_middle_node(plist l, pnode n);
-void partition_list(plist l, unsigned long pivot);
-plist sum_list_1(plist l1, plist l2);
-plist sum_list_2(plist l1, plist l2);
-bool check_palindrome(plist l);
-pnode check_intersection(plist l1, plist l2);
+void remove_dup(p_list l1, p_list l2);
+p_node reverse_count(p_list l, unsigned count);
+void delete_middle_node(p_list l, p_node n);
+void partition_list(p_list l, unsigned long pivot);
+p_list sum_list_1(p_list l1, p_list l2);
+p_list sum_list_2(p_list l1, p_list l2);
+bool check_palindrome(p_list l);
+p_node check_intersection(p_list l1, p_list l2);
 #endif

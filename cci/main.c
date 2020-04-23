@@ -18,8 +18,8 @@
 #include "chapter_three.h"
 #include "hard.h"
 
-static plist create_random_integer_list(unsigned len) {
-  plist l = list_create(LIST_TYPE_INTEGER);
+static p_list create_random_integer_list(unsigned len) {
+  p_list l = list_create(LIST_TYPE_INTEGER);
   srand(time(0));
   while(len-- > 0)
     list_push_back_integer(l, rand()%100);
@@ -73,8 +73,8 @@ static void test_chapter_one(){
 static void test_chapter_two() {
         /* remove duplicate */ 
     {
-      plist l1 = list_create(LIST_TYPE_INTEGER);
-      plist l2 = list_create(LIST_TYPE_INTEGER);
+      p_list l1 = list_create(LIST_TYPE_INTEGER);
+      p_list l2 = list_create(LIST_TYPE_INTEGER);
 
       list_push_back_integer(l1, 1);
       list_push_back_integer(l1, 5);
@@ -98,18 +98,18 @@ static void test_chapter_two() {
     }
 
   {
-    plist l = create_random_integer_list(16);
-    pnode n1 = list_get(l, 10);
-    pnode n2 = reverse_count(l, 6);
+    p_list l = create_random_integer_list(16);
+    p_node n1 = list_get(l, 10);
+    p_node n2 = reverse_count(l, 6);
     assert(n2 && n2 == n1);
     list_free(l);
     free(l);
   }
 
   {
-    plist l = create_random_integer_list(16);
+    p_list l = create_random_integer_list(16);
     unsigned v1 = list_get_integer_value(l, 16);
-    pnode n = list_get(l, 10);
+    p_node n = list_get(l, 10);
     delete_middle_node(l, n);
     unsigned v2 = list_get_integer_value(l, 15);
     assert(l->len == 15 && v1 == v2);
@@ -118,11 +118,11 @@ static void test_chapter_two() {
   }
 
   {
-    plist l = create_random_integer_list(15);
+    p_list l = create_random_integer_list(15);
     list_push_back_integer(l, 20);
     partition_list(l, 50);
     assert(l->len == 16);
-    pnode n = l->head;
+    p_node n = l->head;
     while(n) {
       if((unsigned long)(n->key) >= 50) break;
       n = n->next;
@@ -137,13 +137,13 @@ static void test_chapter_two() {
   }
 
   {
-    plist l1 = list_create(LIST_TYPE_INTEGER);
-    plist l2 = list_create(LIST_TYPE_INTEGER);
+    p_list l1 = list_create(LIST_TYPE_INTEGER);
+    p_list l2 = list_create(LIST_TYPE_INTEGER);
 
     list_push_back_integer(l1, 2); list_push_back_integer(l1, 1); list_push_back_integer(l1, 6);
     list_push_back_integer(l2, 3); list_push_back_integer(l2, 4); list_push_back_integer(l2, 2);
 
-    plist sum = sum_list_1(l1, l2);
+    p_list sum = sum_list_1(l1, l2);
     assert(sum->len == 3 && list_get_integer_value(sum, 1) == 5 && list_get_integer_value(sum, 2) == 5 && list_get_integer_value(sum, 3) == 8);
     list_free(l1);
     free(l1);
@@ -152,13 +152,13 @@ static void test_chapter_two() {
     list_free(sum);
     free(sum);
 
-    plist l3 = list_create(LIST_TYPE_INTEGER);
-    plist l4 = list_create(LIST_TYPE_INTEGER);
+    p_list l3 = list_create(LIST_TYPE_INTEGER);
+    p_list l4 = list_create(LIST_TYPE_INTEGER);
 
     list_push_back_integer(l3, 7); list_push_back_integer(l3, 1); list_push_back_integer(l3, 6);
     list_push_back_integer(l4, 5); list_push_back_integer(l4, 9); list_push_back_integer(l4, 2);
 
-    plist sum2 = sum_list_1(l3, l4);
+    p_list sum2 = sum_list_1(l3, l4);
     assert(list_get_integer_value(sum2, 1) == 2 && list_get_integer_value(sum2, 2) == 1 && list_get_integer_value(sum2, 3) == 9);
     list_free(l3);
     free(l3);
@@ -169,13 +169,13 @@ static void test_chapter_two() {
   }
 
     {
-    plist l1 = list_create(LIST_TYPE_INTEGER);
-    plist l2 = list_create(LIST_TYPE_INTEGER);
+    p_list l1 = list_create(LIST_TYPE_INTEGER);
+    p_list l2 = list_create(LIST_TYPE_INTEGER);
 
     list_push_back_integer(l1, 2); list_push_back_integer(l1, 1); list_push_back_integer(l1, 6);
     list_push_back_integer(l2, 3); list_push_back_integer(l2, 4); list_push_back_integer(l2, 2);
 
-    plist sum = sum_list_2(l1, l2);
+    p_list sum = sum_list_2(l1, l2);
     assert(sum->len == 3 && list_get_integer_value(sum, 1) == 5 && list_get_integer_value(sum, 2) == 5 && list_get_integer_value(sum, 3) == 8);
     list_free(l1);
     free(l1);
@@ -184,13 +184,13 @@ static void test_chapter_two() {
     list_free(sum);
     free(sum);
 
-    plist l3 = list_create(LIST_TYPE_INTEGER);
-    plist l4 = list_create(LIST_TYPE_INTEGER);
+    p_list l3 = list_create(LIST_TYPE_INTEGER);
+    p_list l4 = list_create(LIST_TYPE_INTEGER);
 
     list_push_back_integer(l3, 7); list_push_back_integer(l3, 1); list_push_back_integer(l3, 6);
     list_push_back_integer(l4, 5); list_push_back_integer(l4, 9); list_push_back_integer(l4, 2);
 
-    plist sum2 = sum_list_2(l3, l4);
+    p_list sum2 = sum_list_2(l3, l4);
     assert(sum2->len == 4 && list_get_integer_value(sum2, 1) == 1 && list_get_integer_value(sum2, 2) == 3 && list_get_integer_value(sum2, 3) == 0 && list_get_integer_value(sum2, 4) == 8);
     list_free(l3);
     free(l3);
@@ -201,7 +201,7 @@ static void test_chapter_two() {
   }
     
     if(1){
-        plist l1 = list_create(LIST_TYPE_INTEGER);
+        p_list l1 = list_create(LIST_TYPE_INTEGER);
         list_push_back_integer(l1, 1);
         list_push_back_integer(l1, 5);
         list_push_back_integer(l1, 10);
@@ -210,7 +210,7 @@ static void test_chapter_two() {
         assert(check_palindrome(l1) == false);
         list_free(l1);free(l1);
 
-        plist l2 = list_create(LIST_TYPE_INTEGER);
+        p_list l2 = list_create(LIST_TYPE_INTEGER);
         list_push_back_integer(l2, 1);
         list_push_back_integer(l2, 5);
         list_push_back_integer(l2, 10);
@@ -219,7 +219,7 @@ static void test_chapter_two() {
         assert(check_palindrome(l2)== true);
         list_free(l2);free(l2);
 
-        plist l3 = list_create(LIST_TYPE_INTEGER);
+        p_list l3 = list_create(LIST_TYPE_INTEGER);
         list_push_back_integer(l3, 1);
         list_push_back_integer(l3, 5);
         list_push_back_integer(l3, 5);
@@ -229,10 +229,10 @@ static void test_chapter_two() {
     }
 
     if(1) {
-        plist l1 = create_random_integer_list(15);
-        pnode n = list_get(l1, 10);
-        plist l2 = create_random_integer_list(16);
-        pnode n2 = list_get(l2, 16);
+        p_list l1 = create_random_integer_list(15);
+        p_node n = list_get(l1, 10);
+        p_list l2 = create_random_integer_list(16);
+        p_node n2 = list_get(l2, 16);
         assert(n2->next == NULL);
         n2->next = n;
         list_update_size(l2);
@@ -249,7 +249,7 @@ static void test_chapter_two() {
 }
 
 static void test_chapter_three () {
-  multiple_stacks();
+  test_multiple_stacks();
 }
 
 static void test_hard() {

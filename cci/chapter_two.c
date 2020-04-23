@@ -5,15 +5,15 @@
 #include "chapter_two.h"
 
 
-void remove_dup(plist l1, plist l2) {
+void remove_dup(p_list l1, p_list l2) {
   assert(l1 && l2);
   phashtable ht_set = hashtable_create();
-  pnode n = l1->head;
+  p_node n = l1->head;
   while(n) {
     hashtable_insert_set(ht_set, (unsigned long)n->key);
     n = n->next;
   }
-  pnode prev = l2->head;
+  p_node prev = l2->head;
   n = prev->next;
   while(n) {
     if(hashtable_ismember_set(ht_set, (unsigned long)(n->key))){
@@ -28,10 +28,10 @@ void remove_dup(plist l1, plist l2) {
   return;
 }
 
-pnode reverse_count(plist l, unsigned count) {
+p_node reverse_count(p_list l, unsigned count) {
   assert(l && count < l->len);
 
-  pnode scanner = l->head; pnode ret = NULL;
+  p_node scanner = l->head; p_node ret = NULL;
   while(count-- > 0)
     scanner = scanner->next;
   ret = l->head;
@@ -44,9 +44,9 @@ pnode reverse_count(plist l, unsigned count) {
   return ret;  
 }
 
-void delete_middle_node(plist l, pnode n) {
+void delete_middle_node(p_list l, p_node n) {
   assert(l && n && n->next != NULL);
-  pnode cur = n; pnode next = n->next;
+  p_node cur = n; p_node next = n->next;
 
   while(next->next != NULL) {
     cur->key = next->key;
@@ -61,11 +61,11 @@ void delete_middle_node(plist l, pnode n) {
   return;  
 }
 
-void partition_list(plist l, unsigned long pivot) {
+void partition_list(p_list l, unsigned long pivot) {
   assert(l);
 
-  pnode scanner = l->head;
-  pnode barrier = NULL;
+  p_node scanner = l->head;
+  p_node barrier = NULL;
 
   while(scanner) {
     if((unsigned long)(scanner->key) < pivot) {
@@ -80,7 +80,7 @@ void partition_list(plist l, unsigned long pivot) {
     return;
 }
 
-static void compact_list(plist l) {
+static void compact_list(p_list l) {
     assert(l);
     while(l->head && (unsigned long)(l->head->key) == 0) {
         list_remove_node(l, NULL, l->head);
@@ -88,13 +88,13 @@ static void compact_list(plist l) {
     return;
 }
 
-plist sum_list_1(plist l1, plist l2) {
-  plist partial_sum = list_create(LIST_TYPE_INTEGER);
-  plist carriers = list_create(LIST_TYPE_INTEGER);
+p_list sum_list_1(p_list l1, p_list l2) {
+  p_list partial_sum = list_create(LIST_TYPE_INTEGER);
+  p_list carriers = list_create(LIST_TYPE_INTEGER);
 
   list_push_back_integer(carriers, 0);
-  pnode n1 = l1->head;
-  pnode n2 = l2->head;
+  p_node n1 = l1->head;
+  p_node n2 = l2->head;
   bool has_carrier = false;
   
   while(n1 || n2) {
@@ -126,7 +126,7 @@ plist sum_list_1(plist l1, plist l2) {
     return partial_sum;
   }
   else {
-    plist sum = sum_list_1(partial_sum, carriers);
+    p_list sum = sum_list_1(partial_sum, carriers);
     list_free(carriers);
     free(carriers);
     list_free(partial_sum);
@@ -135,9 +135,9 @@ plist sum_list_1(plist l1, plist l2) {
   }
 }
 
-plist sum_list_2(plist l1, plist l2) {
-    plist partial_sum  = list_create(LIST_TYPE_INTEGER);
-    plist carriers = list_create(LIST_TYPE_INTEGER);
+p_list sum_list_2(p_list l1, p_list l2) {
+    p_list partial_sum  = list_create(LIST_TYPE_INTEGER);
+    p_list carriers = list_create(LIST_TYPE_INTEGER);
 
     unsigned max_len = l1->len > l2->len? l1->len :l2->len;
     unsigned long s; unsigned long c;
@@ -167,7 +167,7 @@ plist sum_list_2(plist l1, plist l2) {
     } else {
         compact_list(carriers);
         list_push_back_integer(carriers, 0);
-        plist sum = sum_list_2(partial_sum, carriers);
+        p_list sum = sum_list_2(partial_sum, carriers);
         list_free(partial_sum);
         free(partial_sum);
         list_free(carriers);
@@ -176,19 +176,19 @@ plist sum_list_2(plist l1, plist l2) {
     }
 }
 
-bool check_palindrome(plist l) {
+bool check_palindrome(p_list l) {
     bool ret = true;
     
     if(l->len == 0) return ret;
-    plist first_half = list_create(LIST_TYPE_INTEGER);
-    pnode n = l->head;
+    p_list first_half = list_create(LIST_TYPE_INTEGER);
+    p_node n = l->head;
     for( unsigned i = 0; i < l->len/2; ++i) {
         list_push_front_integer(first_half, (unsigned long)(n->key));
         n = n->next;
     }
     if(l->len%2)
         n = n->next;
-    pnode m = first_half->head;
+    p_node m = first_half->head;
     while(n){
         if( n->key != m->key) {
             ret = false;
@@ -202,9 +202,9 @@ bool check_palindrome(plist l) {
     return ret;
 }
 
-pnode check_intersection(plist l1, plist l2) {
-    pnode n1 = l1->head;
-    pnode n2 = l2->head;
+p_node check_intersection(p_list l1, p_list l2) {
+    p_node n1 = l1->head;
+    p_node n2 = l2->head;
     while(n1->next)
         n1 = n1->next;
     while(n2->next)

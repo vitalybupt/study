@@ -6,40 +6,48 @@ typedef enum {
       LIST_TYPE_INTEGER,
       LIST_TYPE_STRING,
       LIST_TYPE_MAP,
-      LIST_TYPE_SET
+      LIST_TYPE_SET,
+      LIST_TYPE_GENERIC      
 } list_type;
   
 typedef struct node {
   struct node *next;
   void *key;
   void *value;
-} node, *pnode;
+} node, *p_node;
 
 typedef struct list {
-  pnode head;
-  pnode tail;
-  unsigned int len;
+  p_node head;
+  p_node tail;
+  unsigned len;
   list_type type;
-} list, *plist;
+} list, *p_list;
 
-plist list_create(list_type t);
+p_list list_create(list_type t);
 
-pnode list_push_back_string(plist l, char* val);
-pnode list_push_back_integer(plist l, unsigned long val);
-pnode list_push_back_map(plist l, void *key, void *value, size_t value_len);
+p_node list_push_back_generic(p_list l, void* val);
+p_node list_push_back_string(p_list l, char* val);
+p_node list_push_back_integer(p_list l, unsigned long val);
+p_node list_push_back_map(p_list l, void *key, void *value, size_t value_len);
 
-pnode list_push_front_string(plist l, char* val);
-pnode list_push_front_integer(plist l, unsigned long val);
-pnode list_push_front_map(plist l, void *key, void *value, size_t value_len);
+void* list_pop_back_generic(p_list l);
 
-pnode list_get(plist l, unsigned n);
-unsigned long list_get_integer_value(plist l, unsigned n);
+p_node list_push_front_generic(p_list l, void* val);
+p_node list_push_front_string(p_list l, char* val);
+p_node list_push_front_integer(p_list l, unsigned long val);
+p_node list_push_front_map(p_list l, void *key, void *value, size_t value_len);
 
-void list_update_size(plist l);
-void list_swap_node(plist l, pnode n1, pnode n2);
-pnode list_remove_node(plist l, pnode p, pnode n);
-void list_dump(plist l);
-void list_free(plist l);
+p_node list_get(p_list l, unsigned n);
+p_node list_begin(p_list l);
+p_node list_end(p_list l);
+
+unsigned long list_get_integer_value(p_list l, unsigned n);
+
+void list_update_size(p_list l);
+void list_swap_node(p_list l, p_node n1, p_node n2);
+p_node list_remove_node(p_list l, p_node p, p_node n);
+void list_dump(p_list l);
+void list_free(p_list l);
 
 void list_test();
 #endif
