@@ -1,6 +1,7 @@
 #ifndef MULTIPLE_STACK_H
 #define MULTIPLE_STACK_H
 #include <stdlib.h>
+#include <stdbool.h>
 
 typedef struct {
   unsigned base;
@@ -28,5 +29,6 @@ int multiple_stacks_peek(p_multiple_stack s, const int num, int pos, int *val);
 int push_multiple_stacks(p_multiple_stack s, const int num, int val);
 int pop_multiple_stacks (p_multiple_stack s, const int num, int *top);
 int multiple_stacks_size(p_multiple_stack s, const int num);
+bool multiple_stacks_empty(p_multiple_stack s, const int stack);
 void free_multiple_stacks(p_multiple_stack s);
 #endif

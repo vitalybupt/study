@@ -18,10 +18,9 @@ static bool multiple_stacks_full(p_multiple_stack s, const int stack) {
 }
 
 /* get the index of top element */
-static int multiple_stacks_latest_index(p_multiple_stack s, int stack) {
+static int _get_current_index(p_multiple_stack s, int stack) {
     p_stack_info s_info = _get_stack_info(s, stack);
     assert(stack >= 0 && s_info->size);
-  
     return (s_info->base + s_info->size - 1) % s->stack_total_capacity;
 }
 
@@ -105,7 +104,7 @@ p_multiple_stack create_multiple_stacks(const int nums, const int size) {
 int multiple_stacks_top(p_multiple_stack s, const int num, int *ret) {
   if(num < 0 || num >= s->stack_number)
     return -1;
-  int index = multiple_stacks_latest_index(s, num);
+  int index = _get_current_index(s, num);
   *ret = *(s->value + index);
   return 0;
 }
@@ -129,6 +128,13 @@ int multiple_stacks_size(p_multiple_stack s, const int stack) {
     return -1;
   p_stack_info s_info = _get_stack_info(s, stack);
   return s_info->size;
+}
+
+bool multiple_stacks_empty(p_multiple_stack s, const int stack) {
+    if(stack < 0 || stack >= s->stack_number)
+      return -1;
+    p_stack_info s_info = _get_stack_info(s, stack);
+    return s_info->size == 0 ? true : false;
 }
 
 int push_multiple_stacks(p_multiple_stack s, const int num, int val) {

@@ -40,6 +40,8 @@ p_node list_push_front_map(p_list l, void *key, void *value, size_t value_len);
 p_node list_get(p_list l, unsigned n);
 p_node list_begin(p_list l);
 p_node list_end(p_list l);
+void* list_begin_generic(p_list l);
+void* list_end_generic(p_list l);
 
 unsigned long list_get_integer_value(p_list l, unsigned n);
 

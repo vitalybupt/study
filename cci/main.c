@@ -246,6 +246,13 @@ static void test_chapter_two() {
         list_free(l1); free(l1);
         list_free(l2); free(l2);
     }
+
+    if(1) {
+      //test_myqueue();
+      test_sort_stack();
+      test_animal_sheleter();
+    }
+    
 }
 
 static void test_chapter_three () {

@@ -51,6 +51,13 @@ p_node list_end(p_list l) {
   return l->tail;
 }
 
+void* list_begin_generic(p_list l) {
+  return l->head->key;
+}
+void* list_end_generic(p_list l) {
+  return l->tail->key;
+}
+
 static p_node _list_push_back_generic(p_list l, void* key, void *value, size_t value_len) {
   p_node n = malloc(sizeof(node));
   n->key = key;
