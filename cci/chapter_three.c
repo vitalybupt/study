@@ -292,6 +292,8 @@ static p_animal dequeue_cat (p_animal_shelter s) {
 static void animal_shelter_free(p_animal_shelter s) {
   list_free(s->dog_list);
   list_free(s->cat_list);
+  free(s->dog_list);
+  free(s->cat_list);
   free(s);
   return;
 }
@@ -319,7 +321,12 @@ void test_animal_sheleter() {
   assert(strcmp(a3->name, "cat2") == 0);
   free(a3->name);
   free(a3);
-  
+
+  p_animal a4 = dequeue_dog(s);
+  assert(strcmp(a4->name, "dog2") == 0);
+  free(a4->name);
+  free(a4);
+
   animal_shelter_free(s);
   return;
 }

@@ -16,6 +16,7 @@
 #include "chapter_one.h"
 #include "chapter_two.h"
 #include "chapter_three.h"
+#include "chapter_four.h"
 #include "hard.h"
 
 static p_list create_random_integer_list(unsigned len) {
@@ -247,18 +248,23 @@ static void test_chapter_two() {
         list_free(l2); free(l2);
     }
 
-    if(1) {
-      //test_myqueue();
-      test_sort_stack();
-      test_animal_sheleter();
-    }
     
 }
 
 static void test_chapter_three () {
-  test_multiple_stacks();
+  if(1) {
+    test_multiple_stacks();
+    test_myqueue();
+    test_sort_stack();
+    test_animal_sheleter();
+  }
 }
 
+static void test_chapter_four () {
+  if(1) {
+    test_route_search();
+  }
+}
 static void test_hard() {
   {
     unsigned a = 10; unsigned b = 20;
@@ -285,6 +291,7 @@ int main() {
   test_chapter_one();
   test_chapter_two();
   test_chapter_three();
+  test_chapter_four();
   test_hard();
   return 0;
 }

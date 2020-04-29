@@ -161,6 +161,9 @@ p_node list_push_front_integer(p_list l, unsigned long val) {
 }
 
 
+bool list_empty(p_list l) {
+  return l->len == 0;
+}
 void list_swap_node(p_list l, p_node n1, p_node n2) {
   assert(l && n1 &&n2);
   void * tmp_key = n1->key;
@@ -196,6 +199,8 @@ void list_free(p_list l) {
       free(tmp->key);
     else if(l->type == LIST_TYPE_MAP) {
       free(tmp->value);
+    } else if(l->type == LIST_TYPE_GENERIC) {
+      free(tmp->key);
     }
     free(tmp);
     tmp = n;

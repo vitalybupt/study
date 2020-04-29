@@ -1,6 +1,7 @@
 #ifndef LIST_H
 #define LIST_H
 #include <stddef.h>
+#include <stdbool.h>
 
 typedef enum {
       LIST_TYPE_INTEGER,
@@ -45,6 +46,7 @@ void* list_end_generic(p_list l);
 
 unsigned long list_get_integer_value(p_list l, unsigned n);
 
+bool list_empty(p_list l);
 void list_update_size(p_list l);
 void list_swap_node(p_list l, p_node n1, p_node n2);
 p_node list_remove_node(p_list l, p_node p, p_node n);

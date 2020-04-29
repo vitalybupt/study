@@ -10,6 +10,7 @@
 typedef struct {
   p_list table[NBITS];
   unsigned mask;
+  int number;
 } hashtable, *phashtable;
 
 phashtable hashtable_create();
@@ -17,6 +18,8 @@ void hashtable_insert_map(phashtable h, unsigned long key, void *value, unsigned
 void* hashtable_lookup_map(phashtable h, unsigned long key);
 void hashtable_insert_set(phashtable h, unsigned long key);
 bool hashtable_ismember_set(phashtable h, unsigned long key);
+void hashtable_remove_set(phashtable h, unsigned long key);
+bool hashtable_empty(phashtable h);
 void hashtable_free(phashtable h);
 void hashtable_test();
 #endif

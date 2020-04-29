@@ -8,6 +8,7 @@ phashtable hashtable_create() {
   phashtable ret = malloc(sizeof(hashtable));
   memset(ret, 0 , sizeof(hashtable));
   ret->mask = NBITS - 1;
+  ret->number = 0;
   return ret;
 }
 
@@ -17,6 +18,7 @@ void hashtable_insert_map(phashtable h, unsigned long key, void *value, unsigned
     h->table[hashbucket] = list_create(LIST_TYPE_MAP);
   }
   list_push_back_map(h->table[hashbucket], (void*)key, value, value_len);
+  (h->number)++;
   return;
 }
 
@@ -38,6 +40,7 @@ void hashtable_insert_set(phashtable h, unsigned long key) {
     h->table[hashbucket] = list_create(LIST_TYPE_SET);
   }
   list_push_back_map(h->table[hashbucket], (void*)key, NULL, 0);
+  (h->number)++;
   return;
 }
 
@@ -50,6 +53,31 @@ bool hashtable_ismember_set(phashtable h, unsigned long key) {
     if(key == (unsigned long)(n->key)) return true;
   }
   return false;
+}
+
+void hashtable_remove_set(phashtable h, unsigned long key) {
+  unsigned hashbucket = key*PRIME%h->mask;
+  if(!h->table[hashbucket]) {
+    return;
+  }
+  p_node prev = NULL;
+  for(p_node n = h->table[hashbucket]->head; n; n = n->next) {
+    if(key == (unsigned long)(n->key)) {
+      list_remove_node(h->table[hashbucket], prev, n);
+      if(list_empty(h->table[hashbucket])) {
+	free(h->table[hashbucket]);
+	h->table[hashbucket] = NULL;	  
+      }
+      break;
+    }
+    prev = n;
+  }
+  (h->number)--;
+  return;
+}
+
+bool hashtable_empty(phashtable h) {
+  return h->number == 0; 
 }
 
 void hashtable_free(phashtable h) {
