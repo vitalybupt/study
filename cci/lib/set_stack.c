@@ -46,7 +46,7 @@ int set_stack_pop(p_set_stack s_stack) {
 int set_stack_top(p_set_stack s_stack, unsigned number) {
   int ret;
   do {
-    int *stack = list_get(s_stack->stacks, number)->key;
+    int *stack = list_get_generic(s_stack->stacks, number);
     if(number == (s_stack->stacks->len -1))
       ret = stack[s_stack->size - 1];
     else

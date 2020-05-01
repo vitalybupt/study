@@ -32,19 +32,21 @@ p_node list_push_back_integer(p_list l, unsigned long val);
 p_node list_push_back_map(p_list l, void *key, void *value, size_t value_len);
 
 void* list_pop_back_generic(p_list l);
+void* list_pop_front_generic(p_list l);
 
 p_node list_push_front_generic(p_list l, void* val);
 p_node list_push_front_string(p_list l, char* val);
 p_node list_push_front_integer(p_list l, unsigned long val);
 p_node list_push_front_map(p_list l, void *key, void *value, size_t value_len);
 
-p_node list_get(p_list l, unsigned n);
 p_node list_begin(p_list l);
 p_node list_end(p_list l);
 void* list_begin_generic(p_list l);
 void* list_end_generic(p_list l);
 
+p_node list_get(p_list l, unsigned n);
 unsigned long list_get_integer_value(p_list l, unsigned n);
+void* list_get_generic(p_list l, unsigned n);
 
 bool list_empty(p_list l);
 void list_update_size(p_list l);

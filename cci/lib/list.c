@@ -27,8 +27,7 @@ void list_update_size(p_list l) {
     return;
 }
 
-p_node list_get(p_list l, unsigned n) {
-  assert(l != NULL && l->type == LIST_TYPE_INTEGER && n <= l->len );
+static p_node _list_get(p_list l, unsigned n) {
   p_node node = l->head;
   while(--n) {
     node = node->next;
@@ -36,10 +35,20 @@ p_node list_get(p_list l, unsigned n) {
   return node;
 }
 
+p_node list_get(p_list l, unsigned n) {
+  return _list_get(l, n);
+}
+
 unsigned long list_get_integer_value(p_list l, unsigned n) {
   assert(l != NULL && l->type == LIST_TYPE_INTEGER && n <= l->len );
-  p_node node = list_get(l, n);
+  p_node node = _list_get(l, n);
   return (unsigned long)(node->key);
+}
+
+void* list_get_generic(p_list l, unsigned n) {
+  assert(l != NULL && l->type == LIST_TYPE_GENERIC && n <= l->len );
+  p_node node = _list_get(l, n);
+  return node->key;
 }
 
 p_node list_begin(p_list l) {
@@ -115,6 +124,20 @@ void* list_pop_back_generic(p_list l) {
       free(l->tail->next);
       l->tail->next = NULL;
     }
+  }while(0);
+  
+  l->len -= 1;
+  return ret;
+}
+
+void* list_pop_front_generic(p_list l) {
+  assert(l && l->head);
+  void* ret;
+  do {
+    ret = l->head->key;
+    p_node tmp = l->head;
+    l->head = l->head->next;
+    free(tmp);
   }while(0);
   
   l->len -= 1;    

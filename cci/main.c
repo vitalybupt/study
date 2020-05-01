@@ -263,6 +263,10 @@ static void test_chapter_three () {
 static void test_chapter_four () {
   if(1) {
     test_route_search();
+    test_minimal_tree();
+    test_list_of_depths();
+    test_check_balanced();
+    test_validate_bst();
   }
 }
 static void test_hard() {
