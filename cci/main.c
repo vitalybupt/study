@@ -267,6 +267,8 @@ static void test_chapter_four () {
     test_list_of_depths();
     test_check_balanced();
     test_validate_bst();
+    test_find_successor();
+    test_build_order();
   }
 }
 static void test_hard() {

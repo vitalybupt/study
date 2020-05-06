@@ -27,7 +27,7 @@ void list_update_size(p_list l) {
     return;
 }
 
-static p_node _list_get(p_list l, unsigned n) {
+static p_node _list_get(p_list l, int n) {
   p_node node = l->head;
   while(--n) {
     node = node->next;
@@ -35,17 +35,17 @@ static p_node _list_get(p_list l, unsigned n) {
   return node;
 }
 
-p_node list_get(p_list l, unsigned n) {
+p_node list_get(p_list l, int n) {
   return _list_get(l, n);
 }
 
-unsigned long list_get_integer_value(p_list l, unsigned n) {
+unsigned long list_get_integer_value(p_list l, int n) {
   assert(l != NULL && l->type == LIST_TYPE_INTEGER && n <= l->len );
   p_node node = _list_get(l, n);
   return (unsigned long)(node->key);
 }
 
-void* list_get_generic(p_list l, unsigned n) {
+void* list_get_generic(p_list l, int n) {
   assert(l != NULL && l->type == LIST_TYPE_GENERIC && n <= l->len );
   p_node node = _list_get(l, n);
   return node->key;
@@ -239,6 +239,8 @@ void list_dump(p_list l) {
   while(tmp != NULL) {
     if(l->type == LIST_TYPE_STRING)
       printf("%s\r\n", (char*)tmp->key);
+    else if(l->type == LIST_TYPE_INTEGER)
+	  printf("%ld\r\n", (long)tmp->key);
     else
       assert(NULL);
     tmp = tmp->next;

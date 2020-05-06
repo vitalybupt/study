@@ -43,7 +43,7 @@ int set_stack_pop(p_set_stack s_stack) {
   return ret;  
 }
 
-int set_stack_top(p_set_stack s_stack, unsigned number) {
+int set_stack_top(p_set_stack s_stack, int number) {
   int ret;
   do {
     int *stack = list_get_generic(s_stack->stacks, number);

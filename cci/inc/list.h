@@ -20,7 +20,7 @@ typedef struct node {
 typedef struct list {
   p_node head;
   p_node tail;
-  unsigned len;
+  int len;
   list_type type;
 } list, *p_list;
 
@@ -44,9 +44,9 @@ p_node list_end(p_list l);
 void* list_begin_generic(p_list l);
 void* list_end_generic(p_list l);
 
-p_node list_get(p_list l, unsigned n);
-unsigned long list_get_integer_value(p_list l, unsigned n);
-void* list_get_generic(p_list l, unsigned n);
+p_node list_get(p_list l, int n);
+unsigned long list_get_integer_value(p_list l, int n);
+void* list_get_generic(p_list l, int n);
 
 bool list_empty(p_list l);
 void list_update_size(p_list l);
