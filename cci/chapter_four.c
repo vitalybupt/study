@@ -33,7 +33,8 @@ typedef struct project {
 
 /* internal function declaration */
 static p_tree_node create_bst(int * sort_array, int len);
-static bool graph_routable(p_graph g, phashtable h, int from, int to);
+static bool graph_routable_dfs(p_graph g, phashtable h, int from, int to);
+static bool graph_routable_bfs(p_graph g, p_list q, int target, phashtable h);
 static void free_bst(p_tree_node root);
 static p_list get_list_of_depth(p_list queue, int depth, int num, int target);
 static int check_balanced(p_tree_node bst);
@@ -43,6 +44,7 @@ static p_tree_node get_bst_node(p_tree_node tree, int n);
 static p_project create_project();
 static void free_project(p_project project);
 static void add_project_dep(p_project *projects, int p1, int p2);
+static bool _tree_dfs_cover(p_tree_node root, p_tree_node p);
 #ifdef DEBUG
 static void inorder_traverse_dump(p_tree_node root);
 static void dump_bst(p_tree_node root);
@@ -76,7 +78,7 @@ static bool graph_routable_bfs(p_graph g, p_list q, int target, phashtable h) {
         hashtable_insert_set(h, n);
         // exploit node
         p_list neighs = graph_get_neighs(g, n);
-        for(unsigned i = 1; i <= neighs->len; ++i) {
+        for(int i = 1; i <= neighs->len; ++i) {
             int neigh = list_get_integer_value(neighs, i);
             if(!hashtable_ismember_set(h, neigh))
                 list_push_back_integer(q, neigh);
@@ -85,6 +87,46 @@ static bool graph_routable_bfs(p_graph g, p_list q, int target, phashtable h) {
     return false;
 }
 
+static bool _tree_dfs_cover(p_tree_node root, p_tree_node p) {
+    if(root == NULL) return false;
+    if(root == p) return true;
+    return _tree_dfs_cover(root->left, p) || _tree_dfs_cover(root->right,p);    
+}
+
+static p_tree_node _tree_dfs_search_node(p_tree_node root, int v) {
+    p_tree_node ret = NULL;
+    
+    if(root == NULL) return NULL;
+    if(root->val == v) return root;
+    if(!(ret = _tree_dfs_search_node(root->left, v)))
+        ret = _tree_dfs_search_node(root->right,v);
+    return ret;
+}
+
+static p_tree_node _tree_search_common_ancestor(p_tree_node root, p_tree_node p1, p_tree_node p2) {
+    p_tree_node ret = NULL;
+    do {
+        if(root == p1 || root == p2) {
+            ret = root;
+            break;
+        }
+
+        bool p1_in_left = _tree_dfs_cover(root->left, p1);
+        bool p2_in_left = _tree_dfs_cover(root->left, p2);
+        if(p1_in_left && p2_in_left) {
+            ret =  _tree_search_common_ancestor(root->left, p1, p2);
+            break;
+        } else if(p1_in_left || p2_in_left) {
+            ret = root;
+            break;
+        } else {
+            ret =  _tree_search_common_ancestor(root->right, p1, p2);
+            break;
+        }
+    } while(0);
+    
+    return ret;
+}
 
 static p_tree_node _create_bst(int *sort_array, int len, p_tree_node parent) {
   p_tree_node root = malloc(sizeof(tree_node));
@@ -320,6 +362,31 @@ static p_list build_order(p_project *projects, int num) {
   return built_projects;
 }
 
+static void weave(p_list left, p_list right, p_list prefix, pArrayList ret ) {
+    long l1 =  list_pop_front_integer(left);
+    weave(left, right, prefix, ret);
+    
+}
+
+static pArrayList _all_arrays(p_tree_node root) {
+    pArrayList ret = create_arraylist();
+    p_list prefix = list_create(LIST_TYPE_INTEGER);
+    list_push_back_integer(prefix, root->val);
+    
+    pArrayList left_arrays = _all_arrays(root->left);
+    pArrayList right_arrays = _all_arrays(root->right);
+
+    for(int i = 0; i < left_arrays.size(); ++i) {
+        p_list left = left_arrays[i];
+        for(int j = 0; j < right_arrays.size(); ++j) {
+            p_list right = right_arrays[j];
+            weave(left, right, prefix, ret);
+        }
+    }
+    
+    return ret;
+}
+
 /* public function defination */
 void test_route_search() {
     p_graph g = graph_create(6);
@@ -523,4 +590,34 @@ void test_build_order() {
   list_free(build_path2);
   free(build_path2);
   return;
+}
+
+void test_common_ancestor() {
+    int sort_array[16];
+    for(int i = 0; i < 16; ++i)
+        sort_array[i] = i;
+    p_tree_node bst = create_bst(sort_array, 16);
+    assert(validate_bst(bst, (int[]){INT_MIN, INT_MAX}));
+    
+    p_tree_node p1 = _tree_dfs_search_node(bst, 1);
+    p_tree_node p2 = _tree_dfs_search_node(bst, 7);
+    assert(p1 && p2);
+    assert(!_tree_dfs_search_node(bst, 17));
+
+    p_tree_node ret = _tree_search_common_ancestor(bst, p1, p2);
+    assert(ret && ret->val == 4);    
+    
+    return;
+}
+
+void test_bst_sequences() {
+    int sort_array[7];
+    for(int i = 0; i < 7; ++i)
+        sort_array[i] = i+1;
+    p_tree_node bst = create_bst(sort_array, 7);
+    assert(validate_bst(bst, (int[]){INT_MIN, INT_MAX}));
+
+    _all_arrays(bst);
+        
+    return;
 }

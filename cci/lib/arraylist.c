@@ -6,7 +6,7 @@
 
 pArrayList create_arraylist() {
     pArrayList a = malloc(sizeof(ArrayList));
-    a->val = malloc(sizeof(char*)*INIT_SIZE);
+    a->val = malloc(sizeof(void*)*INIT_SIZE);
     a->len = 0;
     a->size = 0;
     a->cap = INIT_SIZE;
@@ -16,11 +16,23 @@ pArrayList create_arraylist() {
 
 void append_arraylist(pArrayList a, const char* s) {
     if(a->size >= a->cap) {
-        a->val = realloc(a->val, sizeof(char*)*a->cap*2);
+        a->val = realloc(a->val, sizeof(void*)*(a->cap)*2);
         a->cap *= 2;
     }
     a->val[a->size] = strdup(s);
     a->len +=strlen(s);
+    a->size++;
+    
+    return;
+}
+
+void append_arraylist_generic(pArrayList a, void* s) {
+    if(a->size >= a->cap) {
+        a->val = realloc(a->val, sizeof(void*)*(a->cap)*2);
+        a->cap *= 2;
+    }
+    a->val[a->size] = s;
+    a->len += 0;
     a->size++;
     
     return;
@@ -56,7 +68,6 @@ char* tostring_arraylist(pArrayList a) {
     }
     
     return tmp;
-    
 }
 
 void stringbuilder_test() {

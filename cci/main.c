@@ -269,6 +269,8 @@ static void test_chapter_four () {
     test_validate_bst();
     test_find_successor();
     test_build_order();
+    test_common_ancestor();
+    test_bst_sequences();
   }
 }
 static void test_hard() {

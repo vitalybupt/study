@@ -22,7 +22,8 @@ endif()
 AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR} C_SRCS)
 
 add_executable(cci ${C_SRCS})
-target_compile_options(cci PUBLIC -O0 -g3 -pedantic-errors -ansi -Wextra -Wall -Winit-self  -Wuninitialized -Wmissing-declarations -Winit-self --std=gnu17)
+target_compile_options(cci PUBLIC -O0 -g3 -pedantic-errors -ansi -Wextra -Wall
+-Winit-self  -Wuninitialized -Wmissing-declarations -Winit-self --std=gnu11)
 target_link_libraries(cci utils)
 
 

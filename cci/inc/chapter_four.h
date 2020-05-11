@@ -7,4 +7,6 @@ void test_check_balanced();
 void test_validate_bst();
 void test_find_successor();
 void test_build_order();
+void test_common_ancestor();
+void test_bst_sequences();
 #endif
