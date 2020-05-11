@@ -28,15 +28,16 @@ p_list list_create(list_type t);
 
 p_node list_push_back_generic(p_list l, void* val);
 p_node list_push_back_string(p_list l, char* val);
-p_node list_push_back_integer(p_list l, unsigned long val);
+p_node list_push_back_integer(p_list l, long val);
 p_node list_push_back_map(p_list l, void *key, void *value, size_t value_len);
 
 void* list_pop_back_generic(p_list l);
 void* list_pop_front_generic(p_list l);
+long list_pop_front_integer(p_list l);
 
 p_node list_push_front_generic(p_list l, void* val);
 p_node list_push_front_string(p_list l, char* val);
-p_node list_push_front_integer(p_list l, unsigned long val);
+p_node list_push_front_integer(p_list l, long val);
 p_node list_push_front_map(p_list l, void *key, void *value, size_t value_len);
 
 p_node list_begin(p_list l);

@@ -28,7 +28,7 @@ void remove_dup(p_list l1, p_list l2) {
   return;
 }
 
-p_node reverse_count(p_list l, unsigned count) {
+p_node reverse_count(p_list l, int count) {
   assert(l && count < l->len);
 
   p_node scanner = l->head; p_node ret = NULL;
@@ -182,7 +182,7 @@ bool check_palindrome(p_list l) {
     if(l->len == 0) return ret;
     p_list first_half = list_create(LIST_TYPE_INTEGER);
     p_node n = l->head;
-    for( unsigned i = 0; i < l->len/2; ++i) {
+    for( int i = 0; i < l->len/2; ++i) {
         list_push_front_integer(first_half, (unsigned long)(n->key));
         n = n->next;
     }
@@ -216,10 +216,10 @@ p_node check_intersection(p_list l1, p_list l2) {
     n2 = l2->head;
     
     if(l1->len > l2->len) {
-        for(unsigned i = 0; i < (l1->len-l2->len); ++i)
+        for(int i = 0; i < (l1->len-l2->len); ++i)
             n1 = n1->next;
     }else if(l2->len > l1->len) {
-        for(unsigned i = 0; i < (l2->len-l1->len); ++i)
+        for(int i = 0; i < (l2->len-l1->len); ++i)
             n2 = n2->next;
     }
 

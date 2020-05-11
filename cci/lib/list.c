@@ -101,7 +101,7 @@ p_node list_push_back_map(p_list l, void* key, void *value, size_t value_len) {
   return _list_push_back_generic(l, key, value, value_len);
 }
 
-p_node list_push_back_integer(p_list l, unsigned long val) {
+p_node list_push_back_integer(p_list l, long val) {
   assert( l != NULL && l->type == LIST_TYPE_INTEGER);
   return _list_push_back_generic(l, (void*)val, NULL, 0);
 }
@@ -144,6 +144,16 @@ void* list_pop_front_generic(p_list l) {
   return ret;
 }
 
+long list_pop_front_integer(p_list l) {
+    assert(l && l->head);
+    p_node iterator = l->head;
+    l->head = l->head->next;
+    l->len -= 1;
+    long tmp = (long)(iterator->key);
+    free(iterator);
+    return tmp;
+}
+
 static p_node _list_push_front_generic(p_list l, void* key, void *value, size_t value_len) {
   p_node n = malloc(sizeof(node));
   n->key = key;
@@ -178,7 +188,7 @@ p_node list_push_front_map(p_list l, void* key, void *value, size_t value_len) {
   return _list_push_front_generic(l, key, value, value_len);
 }
 
-p_node list_push_front_integer(p_list l, unsigned long val) {
+p_node list_push_front_integer(p_list l, long val) {
   assert( l != NULL && l->type == LIST_TYPE_INTEGER);
   return _list_push_front_generic(l, (void*)val, NULL, 0);
 }

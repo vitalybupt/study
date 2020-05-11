@@ -49,7 +49,7 @@ static void dump_bst(p_tree_node root);
 #endif
 
 /* internal function defination */
-static bool graph_routable(p_graph g, phashtable h, int from, int to) {
+static bool graph_routable_dfs(p_graph g, phashtable h, int from, int to) {
   if(from == to) return true;
   if(hashtable_ismember_set(h, from)) return false;
 
@@ -58,7 +58,7 @@ static bool graph_routable(p_graph g, phashtable h, int from, int to) {
   p_list neighs = graph_get_neighs(g,from);
   for(int i = 1; i <= neighs->len; ++i) {
     int neigh = list_get_integer_value(neighs, i);
-    if(graph_routable(g, h, neigh, to)) {
+    if(graph_routable_dfs(g, h, neigh, to)) {
       hashtable_remove_set(h, from);
       return true;
     }
@@ -66,6 +66,25 @@ static bool graph_routable(p_graph g, phashtable h, int from, int to) {
   hashtable_remove_set(h, from);
   return false;
 }
+
+static bool graph_routable_bfs(p_graph g, p_list q, int target, phashtable h) {
+    while(!list_empty(q)) {
+        long n = list_pop_front_integer(q);
+        //visit node
+        if( n == target )
+            return true;
+        hashtable_insert_set(h, n);
+        // exploit node
+        p_list neighs = graph_get_neighs(g, n);
+        for(unsigned i = 1; i <= neighs->len; ++i) {
+            int neigh = list_get_integer_value(neighs, i);
+            if(!hashtable_ismember_set(h, neigh))
+                list_push_back_integer(q, neigh);
+        }
+    }
+    return false;
+}
+
 
 static p_tree_node _create_bst(int *sort_array, int len, p_tree_node parent) {
   p_tree_node root = malloc(sizeof(tree_node));
@@ -311,16 +330,30 @@ void test_route_search() {
     graph_insert_neigh(g, 3, 2); graph_insert_neigh(g, 3, 4);
 
     phashtable hset = hashtable_create();
-    assert(graph_routable(g, hset, 0, 3));
+    assert(graph_routable_dfs(g, hset, 0, 3));
+    assert(hashtable_empty(hset));
+
+    p_list q = list_create(LIST_TYPE_INTEGER);
+    list_push_back_integer(q, 0);
+    assert(graph_routable_bfs(g, q, 3, hset));
+    hashtable_free(hset);
+    list_free(q);
     assert(hashtable_empty(hset));
     
-    assert(!graph_routable(g, hset, 3, 0));
+    assert(!graph_routable_dfs(g, hset, 3, 0));
     assert(hashtable_empty(hset));
-    
-    assert(!graph_routable(g, hset, 2, 0));
+
+    list_push_back_integer(q, 3);
+    assert(!graph_routable_bfs(g, q, 0, hset));
+    hashtable_free(hset); assert(hashtable_empty(hset));
+    list_free(q);
+        
+    assert(!graph_routable_dfs(g, hset, 2, 0));
     assert(hashtable_empty(hset));
 
     hashtable_free(hset);
+    list_free(q);
+    free(q);
     free(hset);
     graph_free(g);
 }

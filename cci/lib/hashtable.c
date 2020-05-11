@@ -87,8 +87,9 @@ void hashtable_free(phashtable h) {
     if(!l) continue;
     list_free(l);
     free(l);
-    l = NULL;
+    h->table[i] = NULL;
   }
+  h->number = 0;
   return;
 }
 
