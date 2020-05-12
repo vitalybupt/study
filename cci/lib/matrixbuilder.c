@@ -15,7 +15,6 @@ void* create_matrix(unsigned int row, unsigned col) {
 
 void* create_random_matrix(unsigned int row, unsigned int col) {
   void* matrix = create_matrix(row, col);
-  srand(time(0));
   for(unsigned int i = 0; i < row*col; ++i) {
     ((unsigned int*)matrix)[i] = rand()%100;
   }

@@ -38,6 +38,10 @@ void append_arraylist_generic(pArrayList a, void* s) {
     return;
 }
 
+void* arraylist_get(pArrayList a, unsigned i) {
+  if(i >= a->size) return NULL;
+  return a->val[i];
+}
 void free_arraylist(pArrayList a) {
     for(unsigned int i = 0; i < a->size; ++i) {
         free(a->val[i]);

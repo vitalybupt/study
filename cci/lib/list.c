@@ -7,15 +7,81 @@
 
 #include "list.h"
 
+/* internal function defination */
+#ifdef DEBUG
+static void _list_dump(p_list l) {
+  assert(l != NULL);
+  dbg_printf("dump list content %p: ", (void*)l);
+  p_node tmp = l->head;
+  while(tmp != NULL) {
+    if(l->type == LIST_TYPE_STRING)
+      dbg_printf("%s\r\n", (char*)tmp->key);
+    else if(l->type == LIST_TYPE_INTEGER)
+	  dbg_printf("%ld ", (long)tmp->key);
+    else
+      assert(NULL);
+    tmp = tmp->next;
+  }
+  dbg_printf("\r\n");
+  return;
+}
+#endif
+
+static p_node _list_get(p_list l, int n) {
+  p_node node = l->head;
+  while(--n) {
+    node = node->next;
+  }
+  return node;
+}
+
+static p_node _list_push_back_generic(p_list l, void* key, void *value, size_t value_len) {
+  p_node n = malloc(sizeof(node));
+  n->key = key;
+  if(value && value_len > 0) {
+    n->value = malloc(value_len);
+    memcpy(n->value, value, value_len);
+  } else {
+    n->value = NULL;
+  }
+  n->next = NULL;
+  
+  if(l->head == NULL) {
+    l->head = l->tail = n;
+  } else {
+    l->tail->next = n;
+    l->tail = n;
+  }
+  l->len++;
+  return n;
+}
+
+/* public function defination */
 p_list list_create(list_type t) {
-  p_list l = malloc(sizeof(list));
-  if(l == 0) return l;
-  l->type = t;
-  l->head = NULL;
-  l->len = 0;
+  p_list l = NULL;
+  do{
+    l = malloc(sizeof(list));
+    if(l == NULL) break;
+    l->type = t;
+    l->head = NULL;
+    l->len = 0;
+  } while(0);
   return l;
 }
 
+p_list list_clone(p_list l) {
+  p_list l2 = NULL;
+  do{
+    l2 = list_create(l->type);
+    if(!l2) break;
+    for(int i = 1; i <= l->len; ++i) {
+      p_node n = _list_get(l, i);
+      assert(n->value == NULL);
+      _list_push_back_generic(l2, n->key, NULL, 0);
+    }
+  } while(0);
+  return l2;
+}
 void list_update_size(p_list l) {
     unsigned len = 0;
     p_node n = l->head;
@@ -27,13 +93,6 @@ void list_update_size(p_list l) {
     return;
 }
 
-static p_node _list_get(p_list l, int n) {
-  p_node node = l->head;
-  while(--n) {
-    node = node->next;
-  }
-  return node;
-}
 
 p_node list_get(p_list l, int n) {
   return _list_get(l, n);
@@ -67,24 +126,6 @@ void* list_end_generic(p_list l) {
   return l->tail->key;
 }
 
-static p_node _list_push_back_generic(p_list l, void* key, void *value, size_t value_len) {
-  p_node n = malloc(sizeof(node));
-  n->key = key;
-  if(value && value_len > 0) {
-    n->value = malloc(value_len);
-    memcpy(n->value, value, value_len);
-  }
-  n->next = NULL;
-  
-  if(l->head == NULL) {
-    l->head = l->tail = n;
-  } else {
-    l->tail->next = n;
-    l->tail = n;
-  }
-  l->len++;
-  return n;
-}
 
 p_node list_push_back_generic(p_list l, void* s) {
   assert(l != NULL && l->type == LIST_TYPE_GENERIC && s != NULL);
@@ -130,6 +171,10 @@ void* list_pop_back_generic(p_list l) {
   return ret;
 }
 
+long list_pop_back_integer(p_list l) {
+  return (long)list_pop_back_generic(l);
+}
+
 void* list_pop_front_generic(p_list l) {
   assert(l && l->head);
   void* ret;
@@ -145,13 +190,7 @@ void* list_pop_front_generic(p_list l) {
 }
 
 long list_pop_front_integer(p_list l) {
-    assert(l && l->head);
-    p_node iterator = l->head;
-    l->head = l->head->next;
-    l->len -= 1;
-    long tmp = (long)(iterator->key);
-    free(iterator);
-    return tmp;
+  return (long)list_pop_front_generic(l);
 }
 
 static p_node _list_push_front_generic(p_list l, void* key, void *value, size_t value_len) {
@@ -232,30 +271,12 @@ void list_free(p_list l) {
       free(tmp->key);
     else if(l->type == LIST_TYPE_MAP) {
       free(tmp->value);
-    } else if(l->type == LIST_TYPE_GENERIC) {
-      free(tmp->key);
     }
     free(tmp);
     tmp = n;
   }
   l->head = NULL;
   l->len = 0;
-  return;
-}
-
-void list_dump(p_list l) {
-  assert(l != NULL);
-  p_node tmp = l->head;
-  while(tmp != NULL) {
-    if(l->type == LIST_TYPE_STRING)
-      printf("%s\r\n", (char*)tmp->key);
-    else if(l->type == LIST_TYPE_INTEGER)
-	  printf("%ld\r\n", (long)tmp->key);
-    else
-      assert(NULL);
-    tmp = tmp->next;
-  }
-  
   return;
 }
 

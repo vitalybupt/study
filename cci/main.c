@@ -271,6 +271,11 @@ static void test_chapter_four () {
     test_build_order();
     test_common_ancestor();
     test_bst_sequences();
+    test_bst_random_node();
+    test_path_sum();
+#ifdef DEBUG
+    test_row_col_traversals(); // verify the cache line performance
+#endif
   }
 }
 static void test_hard() {
@@ -281,6 +286,7 @@ static void test_hard() {
   }
 }
 int main() {
+  srand(time(0));
   list_test();
   unsigned int token;
   memcpy(&token, "    ", 4);

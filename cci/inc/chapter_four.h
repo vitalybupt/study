@@ -9,4 +9,7 @@ void test_find_successor();
 void test_build_order();
 void test_common_ancestor();
 void test_bst_sequences();
+void test_row_col_traversals();
+void test_bst_random_node();
+void test_path_sum();
 #endif

@@ -13,6 +13,7 @@ typedef struct {
 pArrayList create_arraylist();
 void append_arraylist(pArrayList a, const char* s);
 void append_arraylist_generic(pArrayList a, void* s);
+void* arraylist_get(pArrayList a, unsigned i);
 void free_arraylist(pArrayList a);
 char* tostring_arraylist(pArrayList a);
 unsigned int getlen_arraylist(pArrayList a);

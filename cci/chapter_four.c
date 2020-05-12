@@ -5,21 +5,18 @@
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>
+#include <time.h>
+#include <sys/time.h>
 
 #include "cci_utils.h"
+#include "tree.h"
 #include "arraylist.h"
 #include "hashtable.h"
 #include "graph.h"
+#include "matrixbuilder.h"
 #include "chapter_four.h"
 
 /* macro and type defination */
-typedef struct tree_node {
-  int val;
-  struct tree_node *left;
-  struct tree_node *right;
-  struct tree_node *parent;
-} tree_node, *p_tree_node;
-
 typedef enum {
 	      NOT_BUILT,
 	      BUILT
@@ -32,22 +29,19 @@ typedef struct project {
 } project, *p_project;
 
 /* internal function declaration */
-static p_tree_node create_bst(int * sort_array, int len);
 static bool graph_routable_dfs(p_graph g, phashtable h, int from, int to);
 static bool graph_routable_bfs(p_graph g, p_list q, int target, phashtable h);
-static void free_bst(p_tree_node root);
 static p_list get_list_of_depth(p_list queue, int depth, int num, int target);
 static int check_balanced(p_tree_node bst);
 static bool validate_bst(p_tree_node bst, int *range);
 static p_tree_node get_successor(p_tree_node root);
-static p_tree_node get_bst_node(p_tree_node tree, int n);
 static p_project create_project();
 static void free_project(p_project project);
 static void add_project_dep(p_project *projects, int p1, int p2);
 static bool _tree_dfs_cover(p_tree_node root, p_tree_node p);
+static p_tree_node _bst_random_node_iteration(p_tree_node root, int random);
 #ifdef DEBUG
 static void inorder_traverse_dump(p_tree_node root);
-static void dump_bst(p_tree_node root);
 #endif
 
 /* internal function defination */
@@ -128,58 +122,6 @@ static p_tree_node _tree_search_common_ancestor(p_tree_node root, p_tree_node p1
     return ret;
 }
 
-static p_tree_node _create_bst(int *sort_array, int len, p_tree_node parent) {
-  p_tree_node root = malloc(sizeof(tree_node));
-
-  if(len == 1) {
-    root->val = sort_array[0];
-    root->left = NULL;
-    root->right = NULL;
-    root->parent = parent;
-    return root;
-  } else if(len == 2) {
-    root->val = sort_array[1];
-    root->parent = parent;
-    p_tree_node left = malloc(sizeof(tree_node));
-    left->val = sort_array[0];
-    left->parent = root;
-    left->left = left->right = NULL;
-    root->left = left;
-    root->right = NULL;
-    return root;
-  }
-
-  int mid = len/2;
-  root->val = sort_array[mid];
-  root->parent = parent;
-  root->left = _create_bst(sort_array, mid, root);
-  root->right = _create_bst(sort_array+mid+1, mid-1+len%2, root);
-  
-  return root;
-}
-
-static p_tree_node create_bst(int * sort_array, int len) {
-  assert(len);
-  return _create_bst(sort_array, len, NULL);
-}
-
-#ifdef DEBUG
-static void dump_bst(p_tree_node root) {
-  if(!root) return;
-  printf("%d\r\n", root->val);
-  dump_bst(root->left);
-  dump_bst(root->right);  
-  return;
-}
-#endif
-
-static void free_bst(p_tree_node root) {
-  if(!root) return;
-  free_bst(root->left);
-  free_bst(root->right);
-  free(root);
-  return;
-}
 
 static p_list get_list_of_depth(p_list queue, int depth, int num, int target) {
   if(depth == target) return queue;
@@ -272,32 +214,6 @@ static void inorder_traverse_dump(p_tree_node root) {
 }
 #endif
 
-static p_tree_node _get_bst_node(p_tree_node node, int *n) {
-  p_tree_node ret = NULL;
-  do {
-    if(node->left) {
-      ret = _get_bst_node(node->left, n);
-      if(ret)
-	break;
-    }
-
-    if(--(*n) ==0 ) {
-      ret = node;
-      break;
-    }
-
-    if(node->right) {
-      ret = _get_bst_node(node->right, n);
-      if(ret)
-	break;
-    }
-  }while(0);
-  return ret;
-}
-
-static p_tree_node get_bst_node(p_tree_node tree, int n) {
-  return _get_bst_node(tree, &n);
-}
 
 static p_tree_node get_successor(p_tree_node root) {
   if(root->right) {
@@ -362,29 +278,153 @@ static p_list build_order(p_project *projects, int num) {
   return built_projects;
 }
 
+static void _free_list_in_arraylist(pArrayList a) {
+    for(unsigned int i = 0; i < a->size; ++i) {
+      list_free(a->val[i]);
+    }
+    return;
+}
+
 static void weave(p_list left, p_list right, p_list prefix, pArrayList ret ) {
-    long l1 =  list_pop_front_integer(left);
+  if(list_empty(left) && list_empty(right)) {
+    append_arraylist_generic(ret, list_clone(prefix));
+    return;
+  }
+
+  if(!list_empty(left)) {
+    long val =  list_pop_front_integer(left);
+    list_push_back_integer(prefix, val);
+    weave(left, right, prefix, ret); 
+    list_push_front_integer(left, val);
+    list_pop_back_integer(prefix);
+  }
+  if(!list_empty(right)) {
+    long val =  list_pop_front_integer(right);
+    list_push_back_integer(prefix, val);
     weave(left, right, prefix, ret);
-    
+    list_push_front_integer(right, val);
+    list_pop_back_integer(prefix);
+  }
+  return;
 }
 
 static pArrayList _all_arrays(p_tree_node root) {
-    pArrayList ret = create_arraylist();
+  pArrayList ret = create_arraylist();
+
+  do{
+    if(root == NULL){
+      p_list nop = list_create(LIST_TYPE_INTEGER);
+      append_arraylist_generic(ret, nop);
+      break;
+    }
+
     p_list prefix = list_create(LIST_TYPE_INTEGER);
     list_push_back_integer(prefix, root->val);
-    
     pArrayList left_arrays = _all_arrays(root->left);
     pArrayList right_arrays = _all_arrays(root->right);
 
-    for(int i = 0; i < left_arrays.size(); ++i) {
-        p_list left = left_arrays[i];
-        for(int j = 0; j < right_arrays.size(); ++j) {
-            p_list right = right_arrays[j];
-            weave(left, right, prefix, ret);
+    for(unsigned int i = 0; i < left_arrays->size; ++i) {
+      p_list left = arraylist_get(left_arrays, i);
+        for(unsigned int j = 0; j < right_arrays->size; ++j) {
+	  p_list right = arraylist_get(right_arrays, j);
+	  weave(left, right, prefix, ret);
         }
     }
+    list_free(prefix);
+    free(prefix);
+    _free_list_in_arraylist(left_arrays);
+    _free_list_in_arraylist(right_arrays);
+    free_arraylist(left_arrays);
+    free_arraylist(right_arrays);
+    free(left_arrays);
+    free(right_arrays);
+  } while(0);
+
+  return ret;
+}
+
+static long long sum_matrix(unsigned *p, unsigned row, unsigned col, bool order) {
+  long long sum = 0;
+  if(order) {
+    for(unsigned r = 0; r < row; ++r) {
+      for(unsigned c = 0; c < col; ++c) {
+	sum += *(p+r*row+c);
+      }
+    }
+  } else {
+    for(unsigned c = 0; c < col; ++c) {
+      for(unsigned r = 0; r < row; ++r) {
+	sum += *(p+r*row+c);
+      }
+    }
+  }
+  return sum;
+}
+
+static p_tree_node _bst_random_node_iteration(p_tree_node root, int random){
+  p_tree_node ret = NULL;
+  do {
+    if(root == NULL) break;
+    if(random == 0) {
+      ret = root;
+      break;
+    }
+
+    if(random <= root->left_num)
+      ret = _bst_random_node_iteration(root->left, random -1);
+    else
+      ret = _bst_random_node_iteration(root->right, random - 1 - root->left_num);
+  }while(0);
+
+  return ret;
+}
+
+static p_tree_node _bst_random_node(p_tree_node bst){
+  p_tree_node ret = NULL;
+  do{
+    if(bst == NULL) break;
+
+    unsigned size = 1 + bst->left_num + bst->right_num;
+
+    int random = rand()%size;
+    random = (random + 1) %size;
+
+    if(random == 0) {
+      ret = bst;
+      break;
+    }
+
+    if(random <= bst->left_num)
+      ret = _bst_random_node_iteration(bst->left, random -1);
+    else
+      ret = _bst_random_node_iteration(bst->right, random - 1 - bst->left_num);
+  }while(0);
+  return ret;
+}
+
+static int _get_path_sum(p_tree_node tree, int sum, int target, phashtable r_sum) {
+  int num = 0;
+  do {
+    if(tree == NULL) break;
+    int running_sum = sum + tree->val;
     
-    return ret;
+    if(hashtable_lookup_map(r_sum, running_sum) == NULL) {
+      int occourts = 1;
+      hashtable_insert_map(r_sum, running_sum, &occourts, sizeof(int));
+    } else {
+      int* occourts = hashtable_lookup_map(r_sum, running_sum);
+      (*occourts)++;
+    }
+    int* occourts = hashtable_lookup_map(r_sum, running_sum-target);
+    if(occourts != NULL)
+      num = *occourts;
+    num += _get_path_sum(tree->left, running_sum, target, r_sum);
+    num += _get_path_sum(tree->right, running_sum, target, r_sum);
+
+    occourts = hashtable_lookup_map(r_sum, running_sum);
+    (*occourts)--;
+  }while(0);
+  return num;
 }
 
 /* public function defination */
@@ -502,8 +542,8 @@ void test_validate_bst() {
   while(most_left->left != NULL)
     most_left = most_left->left;
   most_left->left = malloc(sizeof(tree_node));
+  most_left = most_left->left;
   most_left->val = 4; most_left->left = most_left->right = NULL;
-  //most_left = most_left->left;
   assert(!validate_bst(bst, (int[]){INT_MIN, INT_MAX}));
   free_bst(bst);
   return;
@@ -606,8 +646,29 @@ void test_common_ancestor() {
 
     p_tree_node ret = _tree_search_common_ancestor(bst, p1, p2);
     assert(ret && ret->val == 4);    
-    
+    free_bst(bst);
     return;
+}
+
+
+
+void test_row_col_traversals() {
+  struct timespec tstart={0,0}, tend={0,0};
+  struct timespec tstart2={0,0}, tend2={0,0};
+  void * p = create_matrix(6400, 6400);
+  clock_gettime(CLOCK_MONOTONIC, &tstart);
+  sum_matrix(p, 6400, 6400, false);
+  clock_gettime(CLOCK_MONOTONIC, &tend);
+
+  clock_gettime(CLOCK_MONOTONIC, &tstart2);
+  sum_matrix(p, 6400, 6400, true);
+  clock_gettime(CLOCK_MONOTONIC, &tend2);
+
+  printf("int 1 %.5f, int 2 %.5f\r\n", ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) - 
+	 ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec),
+	 ((double)tend2.tv_sec + 1.0e-9*tend2.tv_nsec) - 
+	 ((double)tstart2.tv_sec + 1.0e-9*tstart2.tv_nsec));
+  return;
 }
 
 void test_bst_sequences() {
@@ -617,7 +678,43 @@ void test_bst_sequences() {
     p_tree_node bst = create_bst(sort_array, 7);
     assert(validate_bst(bst, (int[]){INT_MIN, INT_MAX}));
 
-    _all_arrays(bst);
-        
+    pArrayList ret = _all_arrays(bst);
+
+#ifdef DEBUG
+    for(unsigned i = 0; i < ret->size; ++i) {
+      p_list p = arraylist_get(ret, i);
+      list_dump(p);
+    }
+#endif
+    
+    _free_list_in_arraylist(ret);
+    free_arraylist(ret);
+    free(ret);
+    free_bst(bst);
     return;
 }
+
+void test_bst_random_node() {
+    int sort_array[7];
+
+    for(int i = 0; i < 7; ++i)
+        sort_array[i] = i+1;
+    p_tree_node bst = create_bst(sort_array, 7);
+    assert(validate_bst(bst, (int[]){INT_MIN, INT_MAX}));
+    p_tree_node n = _bst_random_node(bst);
+    assert(n);
+    n = _bst_random_node(bst);
+    free_bst(bst);
+    return;
+}
+
+void test_path_sum()  {
+  p_tree_node binary_tree = create_random_tree(63);
+  phashtable r_sum = hashtable_create();
+  int num = _get_path_sum(binary_tree, 0, 8, r_sum);
+  printf("%d\r\n", num);
+  free_bst(binary_tree);
+  hashtable_free(r_sum);
+  return;
+}
+

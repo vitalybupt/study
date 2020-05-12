@@ -26,12 +26,16 @@ typedef struct list {
 
 p_list list_create(list_type t);
 
+p_list list_clone(p_list l);
+
 p_node list_push_back_generic(p_list l, void* val);
 p_node list_push_back_string(p_list l, char* val);
 p_node list_push_back_integer(p_list l, long val);
 p_node list_push_back_map(p_list l, void *key, void *value, size_t value_len);
 
 void* list_pop_back_generic(p_list l);
+long list_pop_back_integer(p_list l);
+
 void* list_pop_front_generic(p_list l);
 long list_pop_front_integer(p_list l);
 
@@ -53,7 +57,11 @@ bool list_empty(p_list l);
 void list_update_size(p_list l);
 void list_swap_node(p_list l, p_node n1, p_node n2);
 p_node list_remove_node(p_list l, p_node p, p_node n);
-void list_dump(p_list l);
+#ifdef DEBUG
+#define list_dump(x) _list_dump(x)
+#else
+#define list_dump(x) do{} while(0)
+#endif
 void list_free(p_list l);
 
 void list_test();
