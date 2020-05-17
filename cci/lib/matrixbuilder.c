@@ -6,33 +6,52 @@
 
 #include "matrixbuilder.h"
 
-void* create_matrix(unsigned int row, unsigned col) {
-  assert(row != 0 && col != 0);
-  void* matrix = malloc(sizeof(unsigned int)*row*col);
-  memset(matrix, 0, sizeof(unsigned int)*row*col);
-  return matrix;
+p_matrix matrix_create(int row, int col) {
+  p_matrix m = NULL;
+  do {
+    if(row <= 0 || col <= 0)
+      break;
+    m = malloc(sizeof(matrix));
+    m->val = calloc(row*col, sizeof(int));
+    m->row = row;
+    m->col = col;
+  } while(0);
+  return m;
 }
 
-void* create_random_matrix(unsigned int row, unsigned int col) {
-  void* matrix = create_matrix(row, col);
-  for(unsigned int i = 0; i < row*col; ++i) {
-    ((unsigned int*)matrix)[i] = rand()%100;
+p_matrix matrix_create_random(int row, int col, int mod) {
+  p_matrix matrix = matrix_create(row, col);
+  unsigned* val = matrix->val;
+  for(int i = 0; i < row*col; ++i) {
+    val[i] = rand()%mod;
   }
   return matrix;
 }
 
-void dump_matrix(void *matrix, unsigned row, unsigned col) {
+#ifdef DEBUG
+void dump_matrix(p_matrix m) {
   printf("the matrix is:\r\n");
-  for(unsigned i = 0; i < row; ++i) {
-    for(unsigned j = 0; j < col; ++j) {
-      printf("%02u ", ((unsigned int*)matrix)[i*col+j]);
+  for(unsigned i = 0; i < m->row; ++i) {
+    for(unsigned j = 0; j < m->col; ++j) {
+      printf("%02u ", matrix_val(m, i, j));
     }
     printf("\r\n");
   }
   return;
 }
-void free_matrix(void* matrix) {
-  free(matrix);
-  matrix = NULL;
+#endif
+
+void matrix_set(p_matrix m, int row, int col, int v) {
+  if((unsigned)row > (unsigned)m->row || (unsigned)col > (unsigned)m->col)
+    return;
+  int *p = matrix_ref(m, row, col);
+  *p = v;
+  return;
+}
+
+void free_matrix(p_matrix m) {
+  free(m->val);
+  free(m);
+  m = NULL;
   return;
 }

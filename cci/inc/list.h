@@ -25,8 +25,16 @@ typedef struct list {
 } list, *p_list;
 
 p_list list_create(list_type t);
-
 p_list list_clone(p_list l);
+
+inline int list_get_length(p_list l) {
+  return l->len;
+}
+
+p_node list_push_front_generic(p_list l, void* val);
+p_node list_push_front_string(p_list l, char* val);
+p_node list_push_front_integer(p_list l, long val);
+p_node list_push_front_map(p_list l, void *key, void *value, size_t value_len);
 
 p_node list_push_back_generic(p_list l, void* val);
 p_node list_push_back_string(p_list l, char* val);
@@ -39,13 +47,9 @@ long list_pop_back_integer(p_list l);
 void* list_pop_front_generic(p_list l);
 long list_pop_front_integer(p_list l);
 
-p_node list_push_front_generic(p_list l, void* val);
-p_node list_push_front_string(p_list l, char* val);
-p_node list_push_front_integer(p_list l, long val);
-p_node list_push_front_map(p_list l, void *key, void *value, size_t value_len);
-
 p_node list_begin(p_list l);
 p_node list_end(p_list l);
+
 void* list_begin_generic(p_list l);
 void* list_end_generic(p_list l);
 

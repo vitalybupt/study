@@ -17,6 +17,7 @@
 #include "chapter_two.h"
 #include "chapter_three.h"
 #include "chapter_four.h"
+#include "chapter_nine.h"
 #include "hard.h"
 
 static p_list create_random_integer_list(unsigned len) {
@@ -62,11 +63,11 @@ static void test_chapter_one(){
   }
 
   {
-    unsigned int (*matrix)[3] = (unsigned int (*)[3])create_random_matrix(3, 3);
-    dump_matrix(matrix, 3, 3);
-    chapter_one_rotate_matrix(matrix, 3, 3);
-    dump_matrix(matrix, 3, 3);
-    free_matrix(matrix);
+    p_matrix m = matrix_create_random(3, 3, 100);
+    dump_matrix(m, 3, 3);
+    chapter_one_rotate_matrix(m->val, 3, 3);
+    dump_matrix(m, 3, 3);
+    free_matrix(m);
   }
   return;
 }
@@ -278,6 +279,13 @@ static void test_chapter_four () {
 #endif
   }
 }
+
+static void test_chapter_nine() {
+  test_triple_step();
+  test_robot_in_grid();
+  return;
+}
+
 static void test_hard() {
   {
     unsigned a = 10; unsigned b = 20;
@@ -306,6 +314,7 @@ int main() {
   test_chapter_two();
   test_chapter_three();
   test_chapter_four();
+  test_chapter_nine();
   test_hard();
   return 0;
 }

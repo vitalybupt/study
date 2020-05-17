@@ -144,15 +144,15 @@ char* chapter_one_compress_string(const char*s) {
         }
         char tmp[32];
         sprintf(tmp, "%c%u", s[i], subcount);
-        append_arraylist(compressStr, tmp);
+        arraylist_append_string(compressStr, tmp);
         subcount = 1;
     }
-    if(getlen_arraylist(compressStr) >= strlen(s)) {
+    if(arraylist_get_strlen(compressStr) >= strlen(s)) {
         free_arraylist(compressStr);
         free(compressStr);
         return strdup(s);
     }
-    char *str = tostring_arraylist(compressStr);
+    char *str = arraylist_tostring(compressStr);
     free_arraylist(compressStr);
     free(compressStr);
     return str;

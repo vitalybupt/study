@@ -279,7 +279,7 @@ static p_list build_order(p_project *projects, int num) {
 }
 
 static void _free_list_in_arraylist(pArrayList a) {
-    for(unsigned int i = 0; i < a->size; ++i) {
+    for(int i = 0; i < a->size; ++i) {
       list_free(a->val[i]);
     }
     return;
@@ -287,7 +287,7 @@ static void _free_list_in_arraylist(pArrayList a) {
 
 static void weave(p_list left, p_list right, p_list prefix, pArrayList ret ) {
   if(list_empty(left) && list_empty(right)) {
-    append_arraylist_generic(ret, list_clone(prefix));
+    arraylist_append_generic(ret, list_clone(prefix));
     return;
   }
 
@@ -314,7 +314,7 @@ static pArrayList _all_arrays(p_tree_node root) {
   do{
     if(root == NULL){
       p_list nop = list_create(LIST_TYPE_INTEGER);
-      append_arraylist_generic(ret, nop);
+      arraylist_append_generic(ret, nop);
       break;
     }
 
@@ -323,9 +323,9 @@ static pArrayList _all_arrays(p_tree_node root) {
     pArrayList left_arrays = _all_arrays(root->left);
     pArrayList right_arrays = _all_arrays(root->right);
 
-    for(unsigned int i = 0; i < left_arrays->size; ++i) {
+    for(int i = 0; i < left_arrays->size; ++i) {
       p_list left = arraylist_get(left_arrays, i);
-        for(unsigned int j = 0; j < right_arrays->size; ++j) {
+        for(int j = 0; j < right_arrays->size; ++j) {
 	  p_list right = arraylist_get(right_arrays, j);
 	  weave(left, right, prefix, ret);
         }
@@ -343,18 +343,18 @@ static pArrayList _all_arrays(p_tree_node root) {
   return ret;
 }
 
-static long long sum_matrix(unsigned *p, unsigned row, unsigned col, bool order) {
+static long long sum_matrix(p_matrix m, bool order) {
   long long sum = 0;
   if(order) {
-    for(unsigned r = 0; r < row; ++r) {
-      for(unsigned c = 0; c < col; ++c) {
-	sum += *(p+r*row+c);
+    for(int r = 0; r < m->row; ++r) {
+      for(int c = 0; c < m->col; ++c) {
+	sum += matrix_val(m, r, c);
       }
     }
   } else {
-    for(unsigned c = 0; c < col; ++c) {
-      for(unsigned r = 0; r < row; ++r) {
-	sum += *(p+r*row+c);
+    for(int c = 0; c < m->col; ++c) {
+      for(int r = 0; r < m->row; ++r) {
+	sum += matrix_val(m, r, c);
       }
     }
   }
@@ -655,13 +655,13 @@ void test_common_ancestor() {
 void test_row_col_traversals() {
   struct timespec tstart={0,0}, tend={0,0};
   struct timespec tstart2={0,0}, tend2={0,0};
-  void * p = create_matrix(6400, 6400);
+  p_matrix p = matrix_create(6400, 6400);
   clock_gettime(CLOCK_MONOTONIC, &tstart);
-  sum_matrix(p, 6400, 6400, false);
+  sum_matrix(p, false);
   clock_gettime(CLOCK_MONOTONIC, &tend);
 
   clock_gettime(CLOCK_MONOTONIC, &tstart2);
-  sum_matrix(p, 6400, 6400, true);
+  sum_matrix(p, true);
   clock_gettime(CLOCK_MONOTONIC, &tend2);
 
   printf("int 1 %.5f, int 2 %.5f\r\n", ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) - 

@@ -27,6 +27,8 @@ static void _list_dump(p_list l) {
 }
 #endif
 
+int list_get_length(p_list l);
+
 static p_node _list_get(p_list l, int n) {
   p_node node = l->head;
   while(--n) {
