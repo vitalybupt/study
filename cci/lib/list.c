@@ -38,15 +38,13 @@ static p_node _list_get(p_list l, int n) {
 }
 
 static p_node _list_push_back_generic(p_list l, void* key, void *value, size_t value_len) {
-  p_node n = malloc(sizeof(node));
+  p_node n = calloc(1, sizeof(node));
+
   n->key = key;
   if(value && value_len > 0) {
     n->value = malloc(value_len);
     memcpy(n->value, value, value_len);
-  } else {
-    n->value = NULL;
   }
-  n->next = NULL;
   
   if(l->head == NULL) {
     l->head = l->tail = n;
@@ -128,6 +126,13 @@ void* list_end_generic(p_list l) {
   return l->tail->key;
 }
 
+long list_begin_integer(p_list l) {
+    return (long)l->head->key;
+}
+
+long list_end_integer(p_list l) {
+    return (long)l->tail->key;
+}
 
 p_node list_push_back_generic(p_list l, void* s) {
   assert(l != NULL && l->type == LIST_TYPE_GENERIC && s != NULL);
@@ -196,7 +201,7 @@ long list_pop_front_integer(p_list l) {
 }
 
 static p_node _list_push_front_generic(p_list l, void* key, void *value, size_t value_len) {
-  p_node n = malloc(sizeof(node));
+  p_node n = calloc(1, sizeof(node));
   n->key = key;
   if(value && value_len > 0) {
     n->value = malloc(value_len);

@@ -5,11 +5,11 @@
 #include <stdbool.h>
 
 phashtable hashtable_create() {
-  phashtable ret = malloc(sizeof(hashtable));
-  memset(ret, 0 , sizeof(hashtable));
-  ret->mask = NBITS - 1;
-  ret->number = 0;
-  return ret;
+  phashtable t = malloc(sizeof(hashtable));
+  memset(t, 0 , sizeof(hashtable));
+  t->mask = NBITS - 1;
+  t->number = 0;
+  return t;
 }
 
 void hashtable_insert_map(phashtable h, unsigned long key, void *value, unsigned value_len) {

@@ -8,15 +8,26 @@ typedef struct {
   int strlen;
   int size;
   int cap;
-} ArrayList, *pArrayList;
+} ArrayList, *p_arraylist;
 
-pArrayList create_arraylist();
-void arraylist_append_string(pArrayList a, const char* s);
-void arraylist_append_generic(pArrayList a, void* s);
-void* arraylist_get(pArrayList a, int i);
-void free_arraylist(pArrayList a);
-char* arraylist_tostring(pArrayList a);
-unsigned int arraylist_get_strlen(pArrayList a);
+inline bool arraylist_empty(p_arraylist a) {
+  return a->size == 0;
+}
+
+inline int arraylist_get_size(p_arraylist a) {
+  return a->size;
+}
+
+p_arraylist arraylist_create();
+void arraylist_append_string(p_arraylist a, const char* s);
+void arraylist_append_generic(p_arraylist a, void* s);
+
+void* arraylist_pop_back_generic(p_arraylist a);
+
+void* arraylist_peak(p_arraylist a, int i);
+void arraylist_free(p_arraylist a);
+char* arraylist_tostring(p_arraylist a);
+unsigned int arraylist_get_strlen(p_arraylist a);
   
 void stringbuilder_test();
 #endif

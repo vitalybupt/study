@@ -2,11 +2,14 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdbool.h>
 #include <assert.h>
 #include "arraylist.h"
 
-pArrayList create_arraylist() {
-    pArrayList a = malloc(sizeof(ArrayList));
+int arraylist_get_size(p_arraylist a);
+
+p_arraylist arraylist_create() {
+    p_arraylist a = malloc(sizeof(ArrayList));
     a->val = malloc(sizeof(void*)*INIT_SIZE);
     a->strlen = 0;
     a->size = 0;
@@ -15,7 +18,7 @@ pArrayList create_arraylist() {
     return a;
 }
 
-void arraylist_append_string(pArrayList a, const char* s) {
+void arraylist_append_string(p_arraylist a, const char* s) {
     if(a->size >= a->cap) {
         a->val = realloc(a->val, sizeof(void*)*(a->cap)*2);
         a->cap *= 2;
@@ -27,7 +30,7 @@ void arraylist_append_string(pArrayList a, const char* s) {
     return;
 }
 
-void arraylist_append_generic(pArrayList a, void* s) {
+void arraylist_append_generic(p_arraylist a, void* s) {
     if(a->size >= a->cap) {
         a->val = realloc(a->val, sizeof(void*)*(a->cap)*2);
         a->cap *= 2;
@@ -37,12 +40,26 @@ void arraylist_append_generic(pArrayList a, void* s) {
     return;
 }
 
-void* arraylist_get(pArrayList a, int i) {
+void* arraylist_pop_back_generic(p_arraylist a) {
+  void *ret = NULL;
+
+  do {
+    if(a->size == 0) break;
+    ret = a->val[a->size - 1];
+    a->size--;
+  }while(0);
+  
+  return ret;
+}
+
+bool arraylist_empty(p_arraylist a);
+
+void* arraylist_peak(p_arraylist a, int i) {
   if((unsigned)i >= (unsigned)a->size) return NULL;
   return a->val[i];
 }
 
-void free_arraylist(pArrayList a) {
+void arraylist_free(p_arraylist a) {
     for(int i = 0; i < a->size; ++i) {
         free(a->val[i]);
     }
@@ -54,12 +71,12 @@ void free_arraylist(pArrayList a) {
     return;
 }
 
-unsigned int arraylist_get_strlen(pArrayList a) {
+unsigned int arraylist_get_strlen(p_arraylist a) {
   assert(a != NULL);
   return a->strlen;
 }
 
-char* arraylist_tostring(pArrayList a) {
+char* arraylist_tostring(p_arraylist a) {
   char *str = NULL;
   do {
     if(a->strlen == 0)
@@ -79,7 +96,7 @@ char* arraylist_tostring(pArrayList a) {
 }
 
 void stringbuilder_test() {
-  pArrayList strings = create_arraylist();
+  p_arraylist strings = arraylist_create();
   arraylist_append_string(strings, "this");
   arraylist_append_string(strings, " is test");
   arraylist_append_string(strings, " for strings");
@@ -91,7 +108,7 @@ void stringbuilder_test() {
       arraylist_append_string(strings, "test");
   arraylist_append_string(strings, "test");
   free(cstr_strings);
-  free_arraylist(strings);
+  arraylist_free(strings);
   free(strings);
 
   return;

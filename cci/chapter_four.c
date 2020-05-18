@@ -278,14 +278,14 @@ static p_list build_order(p_project *projects, int num) {
   return built_projects;
 }
 
-static void _free_list_in_arraylist(pArrayList a) {
+static void _free_list_in_arraylist(p_arraylist a) {
     for(int i = 0; i < a->size; ++i) {
       list_free(a->val[i]);
     }
     return;
 }
 
-static void weave(p_list left, p_list right, p_list prefix, pArrayList ret ) {
+static void weave(p_list left, p_list right, p_list prefix, p_arraylist ret ) {
   if(list_empty(left) && list_empty(right)) {
     arraylist_append_generic(ret, list_clone(prefix));
     return;
@@ -308,8 +308,8 @@ static void weave(p_list left, p_list right, p_list prefix, pArrayList ret ) {
   return;
 }
 
-static pArrayList _all_arrays(p_tree_node root) {
-  pArrayList ret = create_arraylist();
+static p_arraylist _all_arrays(p_tree_node root) {
+  p_arraylist ret = arraylist_create();
 
   do{
     if(root == NULL){
@@ -320,13 +320,13 @@ static pArrayList _all_arrays(p_tree_node root) {
 
     p_list prefix = list_create(LIST_TYPE_INTEGER);
     list_push_back_integer(prefix, root->val);
-    pArrayList left_arrays = _all_arrays(root->left);
-    pArrayList right_arrays = _all_arrays(root->right);
+    p_arraylist left_arrays = _all_arrays(root->left);
+    p_arraylist right_arrays = _all_arrays(root->right);
 
     for(int i = 0; i < left_arrays->size; ++i) {
-      p_list left = arraylist_get(left_arrays, i);
+      p_list left = arraylist_peak(left_arrays, i);
         for(int j = 0; j < right_arrays->size; ++j) {
-	  p_list right = arraylist_get(right_arrays, j);
+	  p_list right = arraylist_peak(right_arrays, j);
 	  weave(left, right, prefix, ret);
         }
     }
@@ -334,8 +334,8 @@ static pArrayList _all_arrays(p_tree_node root) {
     free(prefix);
     _free_list_in_arraylist(left_arrays);
     _free_list_in_arraylist(right_arrays);
-    free_arraylist(left_arrays);
-    free_arraylist(right_arrays);
+    arraylist_free(left_arrays);
+    arraylist_free(right_arrays);
     free(left_arrays);
     free(right_arrays);
   } while(0);
@@ -678,17 +678,17 @@ void test_bst_sequences() {
     p_tree_node bst = create_bst(sort_array, 7);
     assert(validate_bst(bst, (int[]){INT_MIN, INT_MAX}));
 
-    pArrayList ret = _all_arrays(bst);
+    p_arraylist ret = _all_arrays(bst);
 
 #ifdef DEBUG
     for(unsigned i = 0; i < ret->size; ++i) {
-      p_list p = arraylist_get(ret, i);
+      p_list p = arraylist_peak(ret, i);
       list_dump(p);
     }
 #endif
     
     _free_list_in_arraylist(ret);
-    free_arraylist(ret);
+    arraylist_free(ret);
     free(ret);
     free_bst(bst);
     return;
@@ -715,6 +715,7 @@ void test_path_sum()  {
   printf("%d\r\n", num);
   free_bst(binary_tree);
   hashtable_free(r_sum);
+  free(r_sum);
   return;
 }
 

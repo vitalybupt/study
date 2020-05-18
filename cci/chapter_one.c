@@ -134,7 +134,7 @@ bool checkoneway(const char* s1, const char* s2) {
 }
 
 char* chapter_one_compress_string(const char*s) {
-    pArrayList compressStr = create_arraylist();
+    p_arraylist compressStr = arraylist_create();
     unsigned int subcount = 1;
     
     for(unsigned int i = 0; i < strlen(s); ++i) {
@@ -148,12 +148,12 @@ char* chapter_one_compress_string(const char*s) {
         subcount = 1;
     }
     if(arraylist_get_strlen(compressStr) >= strlen(s)) {
-        free_arraylist(compressStr);
+        arraylist_free(compressStr);
         free(compressStr);
         return strdup(s);
     }
     char *str = arraylist_tostring(compressStr);
-    free_arraylist(compressStr);
+    arraylist_free(compressStr);
     free(compressStr);
     return str;
 }

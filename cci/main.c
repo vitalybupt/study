@@ -283,6 +283,8 @@ static void test_chapter_four () {
 static void test_chapter_nine() {
   test_triple_step();
   test_robot_in_grid();
+  test_magic_index();
+  test_powerset();
   return;
 }
 

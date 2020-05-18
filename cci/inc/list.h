@@ -53,6 +53,9 @@ p_node list_end(p_list l);
 void* list_begin_generic(p_list l);
 void* list_end_generic(p_list l);
 
+long list_begin_integer(p_list l);
+long list_end_integer(p_list l);
+
 p_node list_get(p_list l, int n);
 unsigned long list_get_integer_value(p_list l, int n);
 void* list_get_generic(p_list l, int n);
