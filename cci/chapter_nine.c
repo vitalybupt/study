@@ -24,6 +24,7 @@ static p_arraylist _find_maze_path(p_matrix maze, int row, int col);
 static int _find_magic_index_1(int *array, int low, int high);
 static p_list _find_magic_index_2(int *array, int low, int high);
 static p_arraylist _get_powerset( p_list set );
+static int _recursive_multiple(int m, int n);
 
 #ifdef DEBUG
 static void _dump_maze_path(p_arraylist paths);
@@ -281,6 +282,32 @@ static p_arraylist _get_powerset( p_list set) {
     return powerset;
 }
 
+static int _recursive_multiple(int m, int n) {
+    int ret = -1;
+    do {
+        if(n == 0) {
+            ret = 0;
+            break;
+        } else if(n == 1) {
+            ret = m;
+            break;
+        } else if(n == 2) {
+            ret = m << 1;
+            break;
+        }
+          
+        int d = n >> 1;
+        int r = _recursive_multiple(m, d);
+        ret = r + r;
+        if(n %2 == 1)
+            ret += m;
+        break;
+    } while(0);
+    return ret;
+    
+    
+    
+}
 /* defination of public function*/
 void test_triple_step() {
   assert(_triple_step(4) == 7);
@@ -378,3 +405,11 @@ void test_powerset() {
     
     return;
 }
+
+void test_recursive_multiply() {
+    assert(_recursive_multiple(13, 8) == 104);
+    assert(_recursive_multiple(13, 1) == 13);
+    return;
+}
+
+

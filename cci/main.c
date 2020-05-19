@@ -285,6 +285,7 @@ static void test_chapter_nine() {
   test_robot_in_grid();
   test_magic_index();
   test_powerset();
+  test_recursive_multiply();
   return;
 }
 
