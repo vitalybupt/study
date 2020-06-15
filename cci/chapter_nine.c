@@ -8,6 +8,7 @@
 #include "chapter_nine.h"
 #include "arraylist.h"
 #include "matrixbuilder.h"
+#include "stack.h"
 #include "list.h"
 
 /* macro and type defination */
@@ -25,6 +26,9 @@ static int _find_magic_index_1(int *array, int low, int high);
 static p_list _find_magic_index_2(int *array, int low, int high);
 static p_arraylist _get_powerset( p_list set );
 static int _recursive_multiple(int m, int n);
+static p_stack* _create_hanoi(int size);
+static void _destroy_hanoi(p_stack* tower);
+static void _move_hanoi(p_stack *towers, int height, int f, int t, int a);
 
 #ifdef DEBUG
 static void _dump_maze_path(p_arraylist paths);
@@ -308,6 +312,51 @@ static int _recursive_multiple(int m, int n) {
     
     
 }
+
+static p_stack* _create_hanoi(int size) {
+  p_stack* towers = calloc(sizeof(p_stack), 3);
+  for(int i = 0; i < 3; ++i) {
+    towers[i] = stack_create(size);
+  }
+  
+  for(int i = size; i > 0; --i) {
+    stack_push(towers[0], i);
+  }
+  return towers;
+}
+
+static void _destroy_hanoi(p_stack* tower) {
+  for(int i = 0; i < 3; ++i) {
+    stack_free(tower[i]);
+  }
+  free(tower);
+  return;
+}
+
+static void _move_hanoi(p_stack *towers, int height, int f, int t, int a) {
+  if(height <= 0) return;
+  int plate = 0;
+  
+  if(height == 1){
+    stack_pop(towers[f], &plate);
+    stack_push(towers[t], plate);
+    return;
+  }
+
+  _move_hanoi(towers, height - 1, f, a, t);
+  _move_hanoi(towers, 1, f, t, a);
+  _move_hanoi(towers, height -1, a, t, f);
+  return;
+}
+
+static p_list _get_unique_perms(const char *s) {
+  p_list perms;
+  do {
+    
+  } while(0);
+  return perms;
+}
+
 /* defination of public function*/
 void test_triple_step() {
   assert(_triple_step(4) == 7);
@@ -412,4 +461,18 @@ void test_recursive_multiply() {
     return;
 }
 
+void test_hanoi() {
+  p_stack *towers = _create_hanoi(1);
+  _move_hanoi(towers, 1, 0, 2, 1);
+  _destroy_hanoi(towers);
 
+  towers = _create_hanoi(3);
+  _destroy_hanoi(towers);
+  
+  return;
+}
+
+void test_get_unique_perms() {
+  p_list perms = _get_unique_perms("abc");
+  return;
+}

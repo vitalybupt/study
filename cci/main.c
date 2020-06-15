@@ -286,6 +286,8 @@ static void test_chapter_nine() {
   test_magic_index();
   test_powerset();
   test_recursive_multiply();
+  test_hanoi();
+  test_get_unique_perms();
   return;
 }
 
