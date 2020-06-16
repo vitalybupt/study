@@ -18,6 +18,16 @@ p_arraylist arraylist_create() {
     return a;
 }
 
+p_arraylist arraylist_clone(p_arraylist o) {
+  p_arraylist n = malloc(sizeof(ArrayList));
+  memcpy(n, o, sizeof(ArrayList));
+  n->val = malloc(sizeof(void*)*(o->cap));
+  for(int i = 0; i < n->size; ++i) {
+    n->val[i] = strdup(o->val[i]);
+  }
+  return n;
+}
+
 void arraylist_append_string(p_arraylist a, const char* s) {
     if(a->size >= a->cap) {
         a->val = realloc(a->val, sizeof(void*)*(a->cap)*2);
@@ -28,6 +38,17 @@ void arraylist_append_string(p_arraylist a, const char* s) {
     a->size++;
     
     return;
+}
+
+void arraylist_insert_string(p_arraylist a, int p, const char* s) {
+  if(a->size >= a->cap) {
+    a->val = realloc(a->val, sizeof(void*)*(a->cap)*2);
+    a->cap *= 2;
+  }
+  memmove(a->val+p+1, a->val+p, sizeof(void*)*(a->size - p));
+  a->val[p] = strdup(s);
+  a->strlen +=strlen(s);
+  a->size++;
 }
 
 void arraylist_append_generic(p_arraylist a, void* s) {

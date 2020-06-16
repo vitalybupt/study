@@ -19,7 +19,9 @@ inline int arraylist_get_size(p_arraylist a) {
 }
 
 p_arraylist arraylist_create();
+p_arraylist arraylist_clone(p_arraylist o);
 void arraylist_append_string(p_arraylist a, const char* s);
+void arraylist_insert_string(p_arraylist a, int p, const char* s);
 void arraylist_append_generic(p_arraylist a, void* s);
 
 void* arraylist_pop_back_generic(p_arraylist a);

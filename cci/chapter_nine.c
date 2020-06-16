@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 #include <assert.h>
 
 #include "cci_utils.h"
@@ -350,9 +351,31 @@ static void _move_hanoi(p_stack *towers, int height, int f, int t, int a) {
 }
 
 static p_list _get_unique_perms(const char *s) {
-  p_list perms;
+  p_list perms = list_create(LIST_TYPE_GENERIC);
   do {
-    
+    if(s == NULL || strlen(s) == 0 ) {
+      break;
+    } else if(strlen(s) == 1) {
+      p_arraylist perm = arraylist_create();
+      arraylist_append_string(perm, s);
+      list_push_front_generic(perms, perm);
+      break;
+    } else {
+      p_list sub_perms = _get_unique_perms( &s[1]);
+      do {
+	char tmp[2] = {s[0], '\0'};
+	p_arraylist perm = list_pop_front_generic(sub_perms);
+	int size = arraylist_get_size(perm);
+	for(int i = 0; i <= size; ++i) {
+	  p_arraylist new_perm = arraylist_clone(perm);
+	  arraylist_insert_string(new_perm, i, tmp);
+	  list_push_front_generic(perms, new_perm);
+	}
+	arraylist_free(perm);
+	free(perm);
+      } while(!list_empty(sub_perms));
+      free(sub_perms);
+    }
   } while(0);
   return perms;
 }
@@ -473,6 +496,15 @@ void test_hanoi() {
 }
 
 void test_get_unique_perms() {
-  p_list perms = _get_unique_perms("abc");
+  p_list perms = _get_unique_perms("abcd");
+  assert(list_get_length(perms) == 24);
+  do {
+    p_arraylist p = list_pop_front_generic(perms);
+    arraylist_free(p);
+    free(p);
+  } while(!list_empty(perms));
+  list_free(perms);
+  free(perms);
+  
   return;
 }
