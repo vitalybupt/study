@@ -281,6 +281,7 @@ static void test_chapter_four () {
 }
 
 static void test_chapter_nine() {
+  if(0) {
   test_triple_step();
   test_robot_in_grid();
   test_magic_index();
@@ -288,6 +289,8 @@ static void test_chapter_nine() {
   test_recursive_multiply();
   test_hanoi();
   test_get_unique_perms();
+  }
+  test_valid_parens();
   return;
 }
 
@@ -300,16 +303,17 @@ static void test_hard() {
 }
 int main() {
   srand(time(0));
+  if (0) {
   list_test();
   unsigned int token;
   memcpy(&token, "    ", 4);
   unsigned int val;
   memcpy(&val, "aa b", 4);
 
-  pvarray va = create_varray();
+  p_varray va = varray_create();
   assert(va != NULL);
-  modifyat_varray(va, 30, 'c');
-  free_varray(va);
+  varray_modify(va, 30, 'c');
+  varray_free(va);
   free(va);
 
   stringbuilder_test();
@@ -319,7 +323,10 @@ int main() {
   test_chapter_two();
   test_chapter_three();
   test_chapter_four();
+  }
   test_chapter_nine();
-  test_hard();
+  if(0) {
+    test_hard();
+  }
   return 0;
 }

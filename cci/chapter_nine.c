@@ -8,6 +8,7 @@
 #include "cci_utils.h"
 #include "chapter_nine.h"
 #include "arraylist.h"
+#include "varray.h"
 #include "matrixbuilder.h"
 #include "stack.h"
 #include "list.h"
@@ -380,6 +381,45 @@ static p_list _get_unique_perms(const char *s) {
   return perms;
 }
 
+static void _add_parens(p_list list, int left_rem, int right_rem, p_varray str) {
+  do {
+    if(left_rem < 0 || right_rem < 0) break;
+
+    if(left_rem == 0) {
+      if(right_rem != 0) {
+	do {
+	  varray_append_char(str, ')');
+	} while(--right_rem);
+      }
+      list_push_back_generic(list, str);
+      break;
+    }
+
+    if(left_rem < right_rem) {
+      p_varray new_str = varray_clone(str);
+      varray_append_char(new_str, ')');
+      _add_parens(list, left_rem , right_rem-1, new_str);
+    }
+
+    varray_append_char(str, '(');
+    _add_parens(list, left_rem-1 , right_rem, str);
+  } while(0);
+  
+  return;  
+}
+
+static p_list _get_valid_parens(int num) {
+  p_list list = list_create(LIST_TYPE_GENERIC);
+
+  do {
+    if( num == 0 ) break;
+    p_varray str = varray_create();
+    _add_parens(list, num, num, str);
+  } while(0);
+
+  return list;
+}
+
 /* defination of public function*/
 void test_triple_step() {
   assert(_triple_step(4) == 7);
@@ -506,5 +546,32 @@ void test_get_unique_perms() {
   list_free(perms);
   free(perms);
   
+  return;
+}
+
+void test_valid_parens() {
+  p_list p = _get_valid_parens(2);
+  assert(!list_empty(p) && list_get_length(p) == 2);
+  do {
+    p_varray str = list_pop_front_generic(p);
+    //printf("%s\r\n", varray_get_string(str));
+    varray_free(str);
+    free(str);
+  } while (!list_empty(p));
+
+  list_free(p);
+  free(p);
+
+  p = _get_valid_parens(3);
+  assert(!list_empty(p) && list_get_length(p) == 5);
+  do {
+    p_varray str = list_pop_front_generic(p);
+    //printf("%s\r\n", varray_get_string(str));
+    varray_free(str);
+    free(str);
+  } while (!list_empty(p));
+
+  list_free(p);
+  free(p);
   return;
 }

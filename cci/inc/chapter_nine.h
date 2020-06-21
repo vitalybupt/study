@@ -7,4 +7,5 @@ void test_powerset();
 void test_recursive_multiply();
 void test_hanoi();
 void test_get_unique_perms();
+void test_valid_parens();
 #endif

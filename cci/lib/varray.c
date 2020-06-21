@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "varray.h"
 
-static void expand_varray(pvarray a) {
+static void _varray_expand(p_varray a) {
   unsigned int oldcap = a->cap;
   unsigned int newcap = a->cap*2;
 
@@ -13,8 +13,10 @@ static void expand_varray(pvarray a) {
   return; 
 }
 
-pvarray create_varray(){
-  pvarray v = malloc(sizeof(varray));
+extern char* varray_get_string(p_varray a);
+
+p_varray varray_create(){
+  p_varray v = malloc(sizeof(varray));
   char *a = malloc(sizeof(char)*INIT_SIZE);
   memset(a, 0, INIT_SIZE);
   v->val = a;
@@ -23,26 +25,35 @@ pvarray create_varray(){
   return v;  
 }
 
-void pushback_varray(pvarray a, char v) {
+p_varray varray_clone(p_varray o) {
+  p_varray n = malloc(sizeof(varray));
+  memcpy(n, o, sizeof(varray));
+
+  n->val = malloc(sizeof(char)*(n->cap));
+  memcpy(n->val, o->val, sizeof(char)*(n->cap));
+  return n;
+}
+
+void varray_append_char(p_varray a, char v) {
   assert(a != NULL && a->cap != 0);
   if(a->len == a->cap){
-    expand_varray(a);
+    _varray_expand(a);
   }
   a->val[a->len] = v;
   a->len++;
   return;
 }
 
-void modifyat_varray(pvarray a, unsigned int pos, char v) {
+void varray_modify(p_varray a, unsigned int pos, char v) {
   assert(a!= NULL && a->cap != 0);
   if(pos >= a->cap) {
-    expand_varray(a);
+    _varray_expand(a);
   }
   a->val[pos] = v;
   return;  
 }
 
-void free_varray(pvarray a) {
+void varray_free(p_varray a) {
   assert(a != NULL);
   free(a->val);
   a->len = a->cap =0;
