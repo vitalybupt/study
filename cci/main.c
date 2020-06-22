@@ -289,8 +289,10 @@ static void test_chapter_nine() {
   test_recursive_multiply();
   test_hanoi();
   test_get_unique_perms();
+  test_get_no_unique_perms();
   }
   test_valid_parens();
+
   return;
 }
 

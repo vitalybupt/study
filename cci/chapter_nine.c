@@ -31,6 +31,8 @@ static int _recursive_multiple(int m, int n);
 static p_stack* _create_hanoi(int size);
 static void _destroy_hanoi(p_stack* tower);
 static void _move_hanoi(p_stack *towers, int height, int f, int t, int a);
+static p_list _get_no_unique_perms(const char *s);
+static p_list _get_unique_perms(const char *s);
 
 #ifdef DEBUG
 static void _dump_maze_path(p_arraylist paths);
@@ -310,9 +312,6 @@ static int _recursive_multiple(int m, int n) {
         break;
     } while(0);
     return ret;
-    
-    
-    
 }
 
 static p_stack* _create_hanoi(int size) {
@@ -418,6 +417,38 @@ static p_list _get_valid_parens(int num) {
   } while(0);
 
   return list;
+}
+
+static p_list _get_no_unique_perms(const char *s) {
+  p_list perms = list_create(LIST_TYPE_GENERIC);
+  do {
+    if(s == NULL || strlen(s) == 0 ) {
+      break;
+    } else if(strlen(s) == 1) {
+      p_arraylist perm = arraylist_create();
+      arraylist_append_string(perm, s);
+      list_push_front_generic(perms, perm);
+      break;
+    } else {
+      p_list sub_perms = _get_no_unique_perms( &s[1]);
+      do {
+	char tmp[2] = {s[0], '\0'};
+	p_arraylist perm = list_pop_front_generic(sub_perms);
+	int size = arraylist_get_size(perm);
+	for(int i = 0; i <= size; ++i) {
+	  if(i != 0 && ((char*)arraylist_peak(perm, i-1))[0] == s[0])
+	    continue;
+	  p_arraylist new_perm = arraylist_clone(perm);
+	  arraylist_insert_string(new_perm, i, tmp);
+	  list_push_front_generic(perms, new_perm);
+	}
+	arraylist_free(perm);
+	free(perm);
+      } while(!list_empty(sub_perms));
+      free(sub_perms);
+    }
+  } while(0);
+  return perms;
 }
 
 /* defination of public function*/
@@ -545,7 +576,7 @@ void test_get_unique_perms() {
   } while(!list_empty(perms));
   list_free(perms);
   free(perms);
-  
+
   return;
 }
 
@@ -573,5 +604,18 @@ void test_valid_parens() {
 
   list_free(p);
   free(p);
+}
+
+void test_get_no_unique_perms() {
+  p_list perms = _get_no_unique_perms("aabcd");
+  assert(list_get_length(perms) == 96);
+  do {
+    p_arraylist p = list_pop_front_generic(perms);
+    arraylist_free(p);
+    free(p);
+  } while(!list_empty(perms));
+  list_free(perms);
+  free(perms);
+  
   return;
 }
