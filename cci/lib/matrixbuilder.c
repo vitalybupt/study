@@ -49,7 +49,7 @@ void matrix_set(p_matrix m, int row, int col, int v) {
   return;
 }
 
-void free_matrix(p_matrix m) {
+void matrix_free(p_matrix m) {
   free(m->val);
   free(m);
   m = NULL;

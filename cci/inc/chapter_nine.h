@@ -9,4 +9,5 @@ void test_hanoi();
 void test_get_unique_perms();
 void test_valid_parens();
 void test_get_no_unique_perms();
+void test_pain_fill();
 #endif

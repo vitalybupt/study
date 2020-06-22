@@ -20,6 +20,12 @@ typedef struct pair{
   int count;
 } *pair;
 
+typedef enum COLOR {
+      GREEN,
+      YELLOW,
+      RED
+} COLOR;
+
 /* declaration of private function */
 static pair pair_create(int r, int c);
 static int _triple_step(int n);
@@ -33,7 +39,7 @@ static void _destroy_hanoi(p_stack* tower);
 static void _move_hanoi(p_stack *towers, int height, int f, int t, int a);
 static p_list _get_no_unique_perms(const char *s);
 static p_list _get_unique_perms(const char *s);
-
+static void _paint_fill(p_matrix table, int left, int right, int up, int down, int x, int y, COLOR new_color);
 #ifdef DEBUG
 static void _dump_maze_path(p_arraylist paths);
 #endif
@@ -451,6 +457,33 @@ static p_list _get_no_unique_perms(const char *s) {
   return perms;
 }
 
+static void _paint_fill(p_matrix table, int left, int right, int up, int down, int x, int y, COLOR new_color) {
+  do {
+    assert( left <= x && x <= right && up <= y && y <= down);
+
+    COLOR old_color = matrix_val(table, x, y);
+    matrix_set(table, x, y, new_color);
+
+    if(x>left && matrix_val(table, x-1, y) == (int)old_color) {
+      _paint_fill(table, left, x-1, up, down, x-1, y, new_color);
+    }
+
+    if(y>up && matrix_val(table, x, y-1) == (int)old_color) {
+      _paint_fill(table, x, right, up, y-1, x, y-1, new_color);
+    }
+
+    if(x<right && matrix_val(table, x+1, y) == (int)old_color) {
+      _paint_fill(table, x+1, right, y, down, x+1, y, new_color);
+    }
+
+    if(y<down && matrix_val(table, x, y+1) == (int)old_color) {
+      _paint_fill(table, x, x, y+1, down, x, y+1, new_color);
+    }
+  } while(0);
+
+  return;
+}
+
 /* defination of public function*/
 void test_triple_step() {
   assert(_triple_step(4) == 7);
@@ -473,7 +506,7 @@ void test_robot_in_grid() {
     assert(paths2 && paths2->size == 1);
     _free_maze_path(paths2);
 
-    free_matrix(maze);
+    matrix_free(maze);
   }
 
   if(1){
@@ -486,7 +519,7 @@ void test_robot_in_grid() {
 #endif
     assert(paths && paths->size == 4);
     _free_maze_path(paths);
-    free_matrix(maze);
+    matrix_free(maze);
   }
   return;
 }
@@ -580,6 +613,21 @@ void test_get_unique_perms() {
   return;
 }
 
+
+void test_get_no_unique_perms() {
+  p_list perms = _get_no_unique_perms("aabcd");
+  assert(list_get_length(perms) == 96);
+  do {
+    p_arraylist p = list_pop_front_generic(perms);
+    arraylist_free(p);
+    free(p);
+  } while(!list_empty(perms));
+  list_free(perms);
+  free(perms);
+  
+  return;
+}
+
 void test_valid_parens() {
   p_list p = _get_valid_parens(2);
   assert(!list_empty(p) && list_get_length(p) == 2);
@@ -604,18 +652,16 @@ void test_valid_parens() {
 
   list_free(p);
   free(p);
+
 }
 
-void test_get_no_unique_perms() {
-  p_list perms = _get_no_unique_perms("aabcd");
-  assert(list_get_length(perms) == 96);
-  do {
-    p_arraylist p = list_pop_front_generic(perms);
-    arraylist_free(p);
-    free(p);
-  } while(!list_empty(perms));
-  list_free(perms);
-  free(perms);
-  
-  return;
+void test_pain_fill() {
+  p_matrix table = matrix_create_random(16, 16, 3);
+  matrix_set(table, 7, 6, GREEN);
+  dump_matrix(table);
+  _paint_fill(table, 0, 15, 0, 15, 7, 6, RED);
+  dump_matrix(table);
+
+  matrix_free(table);
 }
+

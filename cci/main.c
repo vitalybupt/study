@@ -64,10 +64,10 @@ static void test_chapter_one(){
 
   {
     p_matrix m = matrix_create_random(3, 3, 100);
-    dump_matrix(m, 3, 3);
+    dump_matrix(m);
     chapter_one_rotate_matrix(m->val, 3, 3);
-    dump_matrix(m, 3, 3);
-    free_matrix(m);
+    dump_matrix(m);
+    matrix_free(m);
   }
   return;
 }
@@ -292,7 +292,7 @@ static void test_chapter_nine() {
   test_get_no_unique_perms();
   }
   test_valid_parens();
-
+  test_pain_fill();
   return;
 }
 
