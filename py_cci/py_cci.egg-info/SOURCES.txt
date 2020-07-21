@@ -1,0 +1,6 @@
+README.rst
+setup.py
+py_cci.egg-info/PKG-INFO
+py_cci.egg-info/SOURCES.txt
+py_cci.egg-info/dependency_links.txt
+py_cci.egg-info/top_level.txt

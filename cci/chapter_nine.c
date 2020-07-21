@@ -40,6 +40,7 @@ static void _move_hanoi(p_stack *towers, int height, int f, int t, int a);
 static p_list _get_no_unique_perms(const char *s);
 static p_list _get_unique_perms(const char *s);
 static void _paint_fill(p_matrix table, int left, int right, int up, int down, int x, int y, COLOR new_color);
+static int _sum_coin(int cur, int* rem, int size, int pos, int count);
 #ifdef DEBUG
 static void _dump_maze_path(p_arraylist paths);
 #endif
@@ -484,6 +485,29 @@ static void _paint_fill(p_matrix table, int left, int right, int up, int down, i
   return;
 }
 
+static int _sum_coin(int cur, int* rem, int size, int pos, int count) {
+  if(count < 0)
+    return 0;
+  if(count == 0)
+    return 1;
+
+  if(pos == size) {
+    if(count%cur == 0)
+      return 1;
+    else
+      return 0;
+  }
+
+  int ways = 0;
+
+  for(int i = 0; i <= count/cur; ++i) {
+    ways += _sum_coin(rem[pos], rem, size, pos+1, count-i*cur);
+  }
+
+  return ways;
+  
+}
+
 /* defination of public function*/
 void test_triple_step() {
   assert(_triple_step(4) == 7);
@@ -665,3 +689,13 @@ void test_pain_fill() {
   matrix_free(table);
 }
 
+void test_sum_coin() {
+  int rem[] = {25, 10, 5, 1};
+
+  assert(_sum_coin(25, rem, 4, 1, 4) == 1);
+  assert(_sum_coin(25, rem, 4, 1, 5) == 2);
+  assert(_sum_coin(25, rem, 4, 1, 9) == 2);
+  assert(_sum_coin(25, rem, 4, 1, 10) == 4);
+  assert(_sum_coin(25, rem, 4, 1, 14) == 4);
+  assert(_sum_coin(25, rem, 4, 1, 15) == 6);
+}

@@ -290,9 +290,11 @@ static void test_chapter_nine() {
   test_hanoi();
   test_get_unique_perms();
   test_get_no_unique_perms();
-  }
   test_valid_parens();
   test_pain_fill();
+  }
+
+  test_sum_coin();
   return;
 }
 
