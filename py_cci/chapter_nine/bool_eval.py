@@ -1,13 +1,14 @@
+# -*- coding: utf-8 -*-
 """
-1. ·Ö½âÎÊÌâ
-ÒòÎªÔËËã·û±¾ÉíÃ»ÓĞÓÅÏÈ¼¶£¬¿ÉÒÔ¼ò»¯ÎªÖ»ÓĞÒ»ÖÖÔËËã·û
+1. åˆ†è§£é—®é¢˜
+å› ä¸ºè¿ç®—ç¬¦æœ¬èº«æ²¡æœ‰ä¼˜å…ˆçº§ï¼Œå¯ä»¥ç®€åŒ–ä¸ºåªæœ‰ä¸€ç§è¿ç®—ç¬¦
 expr = 0&0&0&0&0
 1.1
-ÏÈ´Ó×î¼òµ¥µÄÇé¿ö£¬Ö»¼ÓÒ»¶ÔÀ¨ºÅ¿ªÊ¼¿¼ÂÇ£º
-Èç¹ûÃ»ÓĞÀ¨ºÅ£¬ÄÇÃ´ÔËËã°´´Ó×óÏòÓÒµÄË³Ğò¡£
-¼ÓÉÏÀ¨ºÅ£¬»á¸Ä±äÓÒ²àÔËËãÊ½µÄÔËËãË³Ğò£¬Ïàµ±ÓÚ°ÑÔËËãÊ½·Ö½â³ÉÁËÁ½¸ö²¿·Ö£º
+å…ˆä»æœ€ç®€å•çš„æƒ…å†µï¼ŒåªåŠ ä¸€å¯¹æ‹¬å·å¼€å§‹è€ƒè™‘ï¼š
+å¦‚æœæ²¡æœ‰æ‹¬å·ï¼Œé‚£ä¹ˆè¿ç®—æŒ‰ä»å·¦å‘å³çš„é¡ºåºã€‚
+åŠ ä¸Šæ‹¬å·ï¼Œä¼šæ”¹å˜å³ä¾§è¿ç®—å¼çš„è¿ç®—é¡ºåºï¼Œç›¸å½“äºæŠŠè¿ç®—å¼åˆ†è§£æˆäº†ä¸¤ä¸ªéƒ¨åˆ†ï¼š
 expr = (0&0)&(0&0&0)
-ÄÇÃ´°´ÕÕÀ¨ºÅ¼ÓµÄÎ»ÖÃ£¬¿ÉÒÔ½«µÈÊ½·ÖÎª²»Í¬µÄËÄÖÖÇé¿ö£º
+é‚£ä¹ˆæŒ‰ç…§æ‹¬å·åŠ çš„ä½ç½®ï¼Œå¯ä»¥å°†ç­‰å¼åˆ†ä¸ºä¸åŒçš„å››ç§æƒ…å†µï¼š
 expr = (0)&(0&0&0&0)
       +(0&0)&(0&0&0)
       +(0&0&0)&(0&0)
@@ -15,8 +16,8 @@ expr = (0)&(0&0&0&0)
       +(0&0&0&0&0)
    
 1.2
-¿ÉÒÔÍ¨¹ı¹Û²ì£¬ÈÏÖª£¬ÔËËãÊ½µÄ×óÓÒ²¿·ÖÈÔÊÇµÈÊ½£¬ÎÒÃÇ°ÑÎÊÌâ·Ö½âÎªÆä×óÓÒµÈÊ½ÈçºÎµÃµ½Ô¤ÆÚµÄ½á¹û¡£
-2. ÍÆµ¼
+å¯ä»¥é€šè¿‡è§‚å¯Ÿï¼Œè®¤çŸ¥ï¼Œè¿ç®—å¼çš„å·¦å³éƒ¨åˆ†ä»æ˜¯ç­‰å¼ï¼Œæˆ‘ä»¬æŠŠé—®é¢˜åˆ†è§£ä¸ºå…¶å·¦å³ç­‰å¼å¦‚ä½•å¾—åˆ°é¢„æœŸçš„ç»“æœã€‚
+2. æ¨å¯¼
 2.1 expr=sub_expr-1|sub_expr-1|...|sub_expr-n; target = true
     sub_expr = left(op)right
     
@@ -25,7 +26,7 @@ count(expr, t) = _count(sub_expr-1, t)
                 ...
                 +_count(sub_expr-n, t)
 
-2.2 sub_expr ½á¹ûÎªtµÄ×éºÏÊı¿ÉÒÔÓÃº¯Êı _count(sub_expr, t)À´¼ÆËã£º
+2.2 sub_expr ç»“æœä¸ºtçš„ç»„åˆæ•°å¯ä»¥ç”¨å‡½æ•° _count(sub_expr, t)æ¥è®¡ç®—ï¼š
 sub_expr = left ^ right:
 _count(left^right) = count(left, t) * count(right, f) + count(left, f) * count(right, t)
 
@@ -35,7 +36,7 @@ _count(left&right) = count(left, t) * count(right, t)
 sub_expr = left | right:
 _count(left|right) = count(left, t) * count(right, t) + count(left, t) * count(right, f) + count(left, t) * count(right, f)
 
-µÃµ½ÁËµü´úµÄ±í´ïÊ½¡£
+å¾—åˆ°äº†è¿­ä»£çš„è¡¨è¾¾å¼ã€‚
 
 2.3 target = f
 _count(left ^ right, t) + _count(left ^ right,  f) = 
@@ -44,18 +45,18 @@ count(left, t) * count(right, f) + count(left, f) * count(right, t)
 = {count(left, t) + count(left, f)} * {count(right, t) * count(right, f)}
 
 total(expr) = count(expr, t) + count(expr, f); 
-¿ÉÒÔ¼òµ¥µÄÍÆ¶¨, total(expr) Ó¦¸ÃÊÇÒ»¸ö±í´ïÊ½ËùÓĞ¿ÉÄÜµÄ×éºÏ£¬ÆäÖµÓ¦¸ÃÖ»ºÍ±í´ïÊ½µÄ³¤¶ÈÓĞ¹Ø¡£
-Õâ¸öÖµµÄ´óĞ¡ÊÇ£º¼ÙÉèexpr °üº¬µÄÊı×Ö¸öÊıÎªn:
+å¯ä»¥ç®€å•çš„æ¨å®š, total(expr) åº”è¯¥æ˜¯ä¸€ä¸ªè¡¨è¾¾å¼æ‰€æœ‰å¯èƒ½çš„ç»„åˆï¼Œå…¶å€¼åº”è¯¥åªå’Œè¡¨è¾¾å¼çš„é•¿åº¦æœ‰å…³ã€‚
+è¿™ä¸ªå€¼çš„å¤§å°æ˜¯ï¼šå‡è®¾expr åŒ…å«çš„æ•°å­—ä¸ªæ•°ä¸ºn:
 total(expr) = (2n)!/((n+1! * n!)
 
-ËùÒÔ
+æ‰€ä»¥
 _count(left(op)right, t) + _count(left(op)right, f) = total(left) + total(right)
 
 _count(left(op)right, f) = total(left) + total(right) - _count(left(op)right, t)
 
-3. Éè¼Æ
+3. è®¾è®¡
 count(expr, target)
-3.1. ÖÕÖ¹Ìõ¼ş
+3.1. ç»ˆæ­¢æ¡ä»¶
 
 if(len(expr) == 1):
 if(expr == target): return 1 else return 0
@@ -86,30 +87,42 @@ if(expr == target): return 1 else return 0
 return sum
 
 
-4. ¸¨Öúº¯Êı
+4. è¾…åŠ©å‡½æ•°
 4.1 get_sub_expr(expr): 
-generator, ´ÓÒ»¸öexpr Àï±éÀú²úÉúËùÓĞµÄsub_expr¡£
-·µ»ØÖµ£ºnamedtuple: sub_expr = namedtuple("sub_expor", ["left", "op", "right"])
+generator, ä»ä¸€ä¸ªexpr é‡Œéå†äº§ç”Ÿæ‰€æœ‰çš„sub_exprã€‚
+è¿”å›å€¼ï¼šnamedtuple: sub_expr = namedtuple("sub_expor", ["left", "op", "right"])
 4.2 total(expr):
 total(expr) = (2n)!/((n+1! * n!)
 
-5. ÓÅ»¯
-½«count(expr, target)µÄ½á¹û´æÔÚdictÀï£¬½øÈëÇ°ÏÈ²éÕÒdict¡£
+5. ä¼˜åŒ–
+å°†count(expr, target)çš„ç»“æœå­˜åœ¨dicté‡Œï¼Œè¿›å…¥å‰å…ˆæŸ¥æ‰¾dictã€‚
 count(expr, target, maps):
 if(maps[t+expr]):
 return map[t+expr]
 
 """
 
-def count(expr, target, map):
+from math import factorial
+from collections import namedtuple
+
+sub_expr = namedtuple("subexpr", ["left", "op", "right"])
+
+def get_total(n):
+    return factorial(2*n)/(factorial(n+1)*(factorial(n)))
+
+def get_sub_expr(expr):
+    for i in range(1, len(expr), 2):
+        yield sub_expr(expr[0:i], expr[i], expr[i+1:len(expr)])
+    
+def count(expr, target):
     if(len(expr) <= 0):
         return 0
-    elif(len(expr) = 1):
+    elif(len(expr) == 1):
         if(expr == target):
             return 1
         else:
             return 0
-        
+    sum = 0
     for sub_expr in get_sub_expr(expr):
         if(sub_expr.op == '^'):
             tmp = count(sub_expr.left, True) * count(sub_expr.right, False) + count(sub_expr.left, False) * count(sub_expr.right, True)
@@ -120,8 +133,14 @@ def count(expr, target, map):
         if(target == True):
             sum += tmp
         else:
-            lambda n: (2n)
-           total = get_total((len(sub_expr.left) + 1)/2) + get_total((len(sub_expr.left) + 1)/2)
+           total = get_total((len(sub_expr.left) - 1)/2) + get_total((len(sub_expr.left) - 1)/2)
            tmp = total - tmp
            sum += tmp
-    return num
+    return sum
+
+
+c = count("0&0&0&0&0", True)
+print(c)
+
+c = count("0&0&0&0&0", False)
+print(c)
