@@ -3,7 +3,7 @@
 import setuptools
 import os
 
-REQS=[]
+REQS=[]   # internal dependencies
 
 setuptools.setup(
     name="py_cci",

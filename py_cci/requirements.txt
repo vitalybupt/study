@@ -1,0 +1,4 @@
+# external dependencies
+pytest
+pylint
+isort
