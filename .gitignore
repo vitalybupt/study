@@ -11,7 +11,10 @@ node_modules
 *.a
 *.s
 *.out
+*.pyc
 *.run
 CMakeFiles/
 CMakeCache.txt
 *.cmake
+*.venv
+
