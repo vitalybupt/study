@@ -1,0 +1,75 @@
+From 49e2c36aad5c9f4fda28f3b991332daee648eea0 Mon Sep 17 00:00:00 2001
+From: vitalybupt <vitaly1979@gmail.com>
+Date: Fri, 14 Feb 2020 14:26:28 +0000
+Subject: [PATCH] patch to add CONFIG_DEBUG_EXPERIENCE to support compile with
+ '-Og' so that we can debug the kernel with qemu
+
+---
+ Makefile                     |  4 +++-
+ include/linux/compiler-gcc.h |  2 ++
+ init/Kconfig                 | 19 +++++++++++++++++++
+ 3 files changed, 24 insertions(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 84b71845c43f..08919a8f25ea 100644
+--- a/Makefile
++++ b/Makefile
+@@ -699,7 +699,9 @@ KBUILD_CFLAGS	+= $(call cc-disable-warning, format-truncation)
+ KBUILD_CFLAGS	+= $(call cc-disable-warning, format-overflow)
+ KBUILD_CFLAGS	+= $(call cc-disable-warning, address-of-packed-member)
+ 
+-ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE
++ifdef CONFIG_DEBUG_EXPERIENCE
++KBUILD_CFLAGS	+= $(call cc-option, -Og)
++else ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE
+ KBUILD_CFLAGS += -O2
+ else ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE_O3
+ KBUILD_CFLAGS += -O3
+diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
+index d7ee4c6bad48..7e2daff9571b 100644
+--- a/include/linux/compiler-gcc.h
++++ b/include/linux/compiler-gcc.h
+@@ -72,8 +72,10 @@
+ 
+ #define __compiletime_object_size(obj) __builtin_object_size(obj, 0)
+ 
++#if !defined(CONFIG_DEBUG_EXPERIENCE)
+ #define __compiletime_warning(message) __attribute__((__warning__(message)))
+ #define __compiletime_error(message) __attribute__((__error__(message)))
++#endif
+ 
+ #if defined(LATENT_ENTROPY_PLUGIN) && !defined(__CHECKER__)
+ #define __latent_entropy __attribute__((latent_entropy))
+diff --git a/init/Kconfig b/init/Kconfig
+index 452bc1835cd4..366949c3b8be 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -1241,6 +1241,25 @@ choice
+ 	prompt "Compiler optimization level"
+ 	default CC_OPTIMIZE_FOR_PERFORMANCE
+ 
++config DEBUG_EXPERIENCE
++	bool "Optimize for better debugging experience (-Og)"
++	imply CC_DISABLE_WARN_MAYBE_UNINITIALIZED  # avoid false positives
++	help
++	  This will apply GCC '-Og' optimization level get supported from
++	  GCC 4.8. This optimization level offers a reasonable level of
++	  optimization while maintaining fast compilation and a good
++	  debugging experience. It is similar to '-O1' while perfer keeping
++	  debug ability over runtime speed. The overall performance will
++	  drop a bit.
++
++	  If enabling this option break your kernel, you should either
++	  disable this or find a fix (mostly in the arch code). Currently
++	  this option has only be tested in qemu x86_64 guest.
++
++	  Use only if you want to debug the kernel, especially if you want
++	  to have better kernel debugging experience with gdb facilities
++	  like kgdb and qemu.
++
+ config CC_OPTIMIZE_FOR_PERFORMANCE
+ 	bool "Optimize for performance (-O2)"
+ 	help
+-- 
+2.25.0
+

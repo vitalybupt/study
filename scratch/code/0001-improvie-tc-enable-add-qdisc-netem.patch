@@ -1,0 +1,483 @@
+From 9e0347f78ee576e8d3aecdfe299f24e309e63aa8 Mon Sep 17 00:00:00 2001
+From: Zhang JunWei <JunWei.Zhang@technicolor.com>
+Date: Fri, 3 Apr 2020 18:46:54 +0800
+Subject: [PATCH] implement tc
+
+---
+ networking/libiproute/libnetlink.h |   5 +
+ networking/libiproute/utils.c      |  74 ++++++++++++
+ networking/libiproute/utils.h      |   5 +
+ networking/tc.c                    | 241 ++++++++++++++++++++++++++++++++++---
+ 4 files changed, 306 insertions(+), 19 deletions(-)
+
+diff --git a/networking/libiproute/libnetlink.h b/networking/libiproute/libnetlink.h
+index 1b082e0..3ffd975 100644
+--- a/networking/libiproute/libnetlink.h
++++ b/networking/libiproute/libnetlink.h
+@@ -8,6 +8,11 @@
+ #include <linux/netlink.h>
+ #include <linux/rtnetlink.h>
+ 
++#define TCA_BUF_MAX	(64*1024)
++
++#define NLMSG_TAIL(nmsg) \
++	((struct rtattr *) (((void *) (nmsg)) + NLMSG_ALIGN((nmsg)->nlmsg_len)))
++
+ PUSH_AND_SET_FUNCTION_VISIBILITY_TO_HIDDEN
+ 
+ struct rtnl_handle {
+diff --git a/networking/libiproute/utils.c b/networking/libiproute/utils.c
+index 4ce2303..643a1e3 100644
+--- a/networking/libiproute/utils.c
++++ b/networking/libiproute/utils.c
+@@ -34,6 +34,80 @@ unsigned FAST_FUNC get_hz(void)
+ 	return hz_internal;
+ }
+ 
++unsigned FAST_FUNC get_percent(const char *str)
++{
++  char *p;
++  
++  double val = strtod(str, &p) / 100.;
++  if (val > 1.0 || val < 0.0 || (*p && strcmp(p, "%")))
++    return 0;
++  return rint(val * UINT32_MAX);
++}
++
++unsigned FAST_FUNC get_time(const char *str)
++{
++	double t;
++	char *p;
++
++	t = strtod(str, &p);
++	if (p == str)
++		return -1;
++
++	if (*p) {
++		if (strcasecmp(p, "s") == 0 || strcasecmp(p, "sec") == 0 ||
++		    strcasecmp(p, "secs") == 0)
++			t *= TIME_UNITS_PER_SEC;
++		else if (strcasecmp(p, "ms") == 0 || strcasecmp(p, "msec") == 0 ||
++			 strcasecmp(p, "msecs") == 0)
++			t *= TIME_UNITS_PER_SEC/1000;
++		else if (strcasecmp(p, "us") == 0 || strcasecmp(p, "usec") == 0 ||
++			 strcasecmp(p, "usecs") == 0)
++			t *= TIME_UNITS_PER_SEC/1000000;
++		else
++			return 0;
++	}
++
++	return t;
++}
++
++unsigned FAST_FUNC get_ticks(const char *str)
++{
++	unsigned int t;
++
++	if (!(t = get_time(str)))
++	    return 0;
++
++		FILE *fp;
++	__u32 clock_res;
++	__u32 t2us;
++	__u32 us2t;
++
++	double tick_in_usec = 1;
++	double clock_factor = 1;
++
++	fp = fopen("/proc/net/psched", "r");
++	if (fp == NULL)
++		return -1;
++
++	if (fscanf(fp, "%08x%08x%08x", &t2us, &us2t, &clock_res) != 3) {
++		fclose(fp);
++		return -1;
++	}
++	fclose(fp);
++
++	/* compatibility hack: for old iproute binaries (ignoring
++	 * the kernel clock resolution) the kernel advertises a
++	 * tick multiplier of 1000 in case of nano-second resolution,
++	 * which really is 1. */
++	if (clock_res == 1000000000)
++		t2us = us2t;
++
++	clock_factor  = (double)clock_res / TIME_UNITS_PER_SEC;
++	tick_in_usec = (double)t2us / us2t * clock_factor;
++
++	return t*tick_in_usec ;
++}
++
+ unsigned FAST_FUNC get_unsigned(char *arg, const char *errmsg)
+ {
+ 	unsigned long res;
+diff --git a/networking/libiproute/utils.h b/networking/libiproute/utils.h
+index 5549098..d07b388 100644
+--- a/networking/libiproute/utils.h
++++ b/networking/libiproute/utils.h
+@@ -52,6 +52,11 @@ struct ipx_addr {
+ 	uint8_t  ipx_node[IPX_NODE_LEN];
+ };
+ 
++#define TIME_UNITS_PER_SEC	1000000
++#define NSEC_PER_USEC 1000
++#define NSEC_PER_MSEC 1000000
++#define NSEC_PER_SEC 1000000000LL
++
+ char** next_arg(char **argv) FAST_FUNC;
+ #define NEXT_ARG() do { argv = next_arg(argv); } while (0)
+ 
+diff --git a/networking/tc.c b/networking/tc.c
+index 5106844..571673a 100644
+--- a/networking/tc.c
++++ b/networking/tc.c
+@@ -178,6 +178,35 @@ static int get_tc_classid(uint32_t *h, const char *str)
+ 	return 0;
+ }
+ 
++static unsigned int get_rate(const char *rate)
++{
++	double sz;
++	char *p;
++
++	sz = strtod(rate, &p);
++	if (p == rate)
++		return 0;
++
++	if (*p) {
++		if (strcasecmp(p, "kb") == 0 || strcasecmp(p, "k") == 0)
++			sz *= 1024;
++		else if (strcasecmp(p, "gb") == 0 || strcasecmp(p, "g") == 0)
++			sz *= 1024*1024*1024;
++		else if (strcasecmp(p, "gbit") == 0)
++			sz *= 1024*1024*1024/8;
++		else if (strcasecmp(p, "mb") == 0 || strcasecmp(p, "m") == 0)
++			sz *= 1024*1024;
++		else if (strcasecmp(p, "mbit") == 0)
++			sz *= 1024*1024/8;
++		else if (strcasecmp(p, "kbit") == 0)
++			sz *= 1024/8;
++		else if (strcasecmp(p, "b") != 0)
++			return 0;
++	}
++
++	return (unsigned int)sz;
++}
++
+ static void print_rate(char *buf, int len, uint32_t rate)
+ {
+ 	double tmp = (double)rate*8;
+@@ -325,6 +354,40 @@ static int cbq_print_opt(struct rtattr *opt)
+ 	return 0;
+ }
+ 
++static int netem_print_opt(struct rtattr *opt)
++{
++	struct rtattr *tb[TCA_NETEM_MAX+1];
++	struct tc_ratespec *r = NULL;
++	const char *const error = "netem: too short %s opt";
++	char buf[64];
++
++	if (opt == NULL)
++		goto done;
++	parse_rtattr_nested(tb, TCA_NETEM_MAX, opt);
++
++	if (tb[TCA_NETEM_RATE]) {
++		if (RTA_PAYLOAD(tb[TCA_NETEM_RATE]) < sizeof(*r))
++			bb_error_msg(error, "rate");
++		else
++			r = RTA_DATA(tb[TCA_NETEM_RATE]);
++	}
++
++	if (r) {
++		print_rate(buf, sizeof(buf), r->rate);
++		printf("rate %s ", buf);
++		if (show_details) {
++			printf("cell %ub ", 1<<r->cell_log);
++			if (r->mpu)
++				printf("mpu %ub ", r->mpu);
++			if (r->overhead)
++				printf("overhead %ub ", r->overhead);
++		}
++	}
++
++ done:
++	return 0;
++}
++
+ static FAST_FUNC int print_qdisc(
+ 		const struct sockaddr_nl *who UNUSED_PARAM,
+ 		struct nlmsghdr *hdr,
+@@ -370,13 +433,15 @@ static FAST_FUNC int print_qdisc(
+ 	if (msg->tcm_info != 1)
+ 		printf("refcnt %d ", msg->tcm_info);
+ 	if (tb[TCA_OPTIONS]) {
+-		static const char _q_[] ALIGN1 = "pfifo_fast\0""cbq\0";
++		static const char _q_[] ALIGN1 = "pfifo_fast\0""cbq\0""netem\0";
+ 		int qqq = index_in_strings(_q_, name);
+ 		if (qqq == 0) { /* pfifo_fast aka prio */
+ 			prio_print_opt(tb[TCA_OPTIONS]);
+ 		} else if (qqq == 1) { /* class based queuing */
+ 			cbq_print_opt(tb[TCA_OPTIONS]);
+-		} else
++		} else if(qqq == 2) { /* netem */
++            netem_print_opt(tb[TCA_OPTIONS]);
++        }else
+ 			bb_error_msg("unknown %s", name);
+ 	}
+ 	bb_putchar('\n');
+@@ -461,6 +526,108 @@ static FAST_FUNC int print_filter(
+ 	return 0;
+ }
+ 
++/**
++ * check if indicated qdisc supported or not
++ *
++ * @param    kind  the type of qdisc need to be handled
++ * @return   0 not supported
++ *           1 supported
++ */
++static FAST_FUNC int supported_qdisc(const char* kind) {
++  static const char qdisc_kinds[] ALIGN1 =
++    "netem\0""qfifo_fast\0"
++    ;
++  int qdisc;
++  if ((qdisc = index_in_substrings(qdisc_kinds, kind)) < 0) return -1;
++  return qdisc;
++}
++
++static FAST_FUNC unsigned int parse_qdisc_netem(int cmd, const char **argv, struct nlmsghdr *n) {
++  const char* commands[] ={ "add",
++			    "delete",
++			    "change",
++			    "link",
++			    "replace",
++			    "show",
++			    "list"
++  };
++
++#ifndef NODEBUG  
++  {
++    const char **p = argv;
++    printf("try to %s netem with params:\r\n\t", commands[cmd]);
++    while(*p) {
++      printf("%s ", *p);
++      p++;
++    }
++    printf("\r\n");
++  }
++#endif
++
++  struct rtattr *tail;
++  struct tc_netem_qopt opt = { .limit = 1000 };
++  struct tc_netem_corr cor = {};
++  struct tc_netem_reorder reorder = {};
++  struct tc_netem_corrupt corrupt = {};
++  struct tc_netem_gimodel gimodel;
++  struct tc_netem_gemodel gemodel;
++  struct tc_netem_rate rate = {};
++  
++  __s16 *dist_data = NULL;
++  __u16 loss_type = NETEM_LOSS_UNSPEC;
++  int present[__TCA_NETEM_MAX] = {};
++  __u64 rate64 = 0;
++  
++
++  while(*argv) {
++    if (strncmp(*argv, "limit", 5) == 0) {
++      NEXT_ARG();
++      if (!(opt.limit = get_rate(*argv))) {
++          invarg_1_to_2(*argv, "limit");
++          return 0;
++      }
++    } else if (strncmp(*argv, "latency", 7) == 0 ||
++    	       strncmp(*argv, "delay", 5) == 0) {
++      NEXT_ARG();
++      if (!(opt.latency = get_ticks(*argv))) {
++	invarg_1_to_2(*argv, "delay");
++    	return 0;
++      }
++    } else if (strncmp(*argv,"rate", 4) == 0) {
++        ++present[TCA_NETEM_RATE];
++        NEXT_ARG();
++        if (!(rate.rate = get_rate(*argv))) {
++            invarg_1_to_2(*argv, "rate");
++            return 0;
++        }
++    } else if (strncmp(*argv, "reorder", 7) == 0) {
++      NEXT_ARG();
++      present[TCA_NETEM_REORDER] = 1;
++      if (get_percent(&reorder.probability, *argv)) {
++	invarg_1_to_2(*argv, "reorder");
++    	return 0;
++      }
++    }
++    ++argv;
++  }
++
++  if (addattr_l(n, 1024, TCA_KIND, "netem", 6) < 0)
++      return 0;
++  if (addattr_l(n, 1024, TCA_OPTIONS, &opt, sizeof(opt)) < 0)
++      return 0;
++  
++  if (present[TCA_NETEM_RATE]) {
++      if (addattr_l(n, 1024, TCA_NETEM_RATE, &rate, sizeof(rate)) < 0)
++          return -1;
++  }
++
++  if (present[TCA_NETEM_REORDER] &&
++      addattr_l(n, 1024, TCA_NETEM_REORDER, &reorder, sizeof(reorder)) < 0)
++    return 0;
++  
++  return 1;
++}
++
+ int tc_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
+ int tc_main(int argc UNUSED_PARAM, char **argv)
+ {
+@@ -480,6 +647,9 @@ int tc_main(int argc UNUSED_PARAM, char **argv)
+ 		CMD_replace,
+ 		CMD_show
+ 	};
++
++	enum {qdisc_netem = 0, qdisc_qfifo};
++
+ 	static const char args[] ALIGN1 =
+ 		"dev\0" /* qdisc, class, filter */
+ 		"root\0" /* class, filter */
+@@ -499,8 +669,16 @@ int tc_main(int argc UNUSED_PARAM, char **argv)
+ 		ARG_pref, ARG_prio, ARG_proto
+ 	};
+ 	struct rtnl_handle rth;
+-	struct tcmsg msg;
+-	int ret, obj, cmd, arg;
++	struct {
++	  struct nlmsghdr	n;
++	  struct tcmsg		t;
++	  char			buf[TCA_BUF_MAX];
++	} req = {
++		 .n.nlmsg_len = NLMSG_LENGTH(sizeof(struct tcmsg)),
++		 .n.nlmsg_flags = NLM_F_REQUEST,
++	};
++	
++	int ret, obj, cmd, arg, qdisc;
+ 	char *dev = NULL;
+ 
+ 	INIT_G();
+@@ -523,9 +701,9 @@ int tc_main(int argc UNUSED_PARAM, char **argv)
+ 		argv++;
+ 	}
+ 
+-	memset(&msg, 0, sizeof(msg));
++	memset(&req.t, 0, sizeof(req.t));
+ 	if (AF_UNSPEC != 0)
+-		msg.tcm_family = AF_UNSPEC;
++		req.t.tcm_family = AF_UNSPEC;
+ 	ll_init_map(&rth);
+ 
+ 	while (*argv) {
+@@ -534,10 +712,10 @@ int tc_main(int argc UNUSED_PARAM, char **argv)
+ 			NEXT_ARG();
+ 			if (dev)
+ 				duparg2("dev", *argv);
+-			dev = *argv++;
+-			msg.tcm_ifindex = xll_name_to_index(dev);
++			dev = *argv;
++			req.t.tcm_ifindex = xll_name_to_index(dev);
+ 			if (cmd >= CMD_show)
+-				filter_ifindex = msg.tcm_ifindex;
++				filter_ifindex = req.t.tcm_ifindex;
+ 		} else
+ 		if ((arg == ARG_qdisc && obj == OBJ_class && cmd >= CMD_show)
+ 		 || (arg == ARG_handle && obj == OBJ_qdisc && cmd == CMD_change)
+@@ -554,29 +732,46 @@ int tc_main(int argc UNUSED_PARAM, char **argv)
+ 		    )
+ 		) {
+ 			/* nothing */
+-		} else {
++		} else
++		  if(obj == OBJ_qdisc && arg == -1 && (qdisc = supported_qdisc(*argv)) >= 0){
++		    int ret = 0;
++		    switch(qdisc){
++		    case qdisc_netem:
++		      ret = parse_qdisc_netem(cmd, ++argv, &(req.n));
++		      break;
++		    default:
++		      printf("unsupported qdisc\r\n");
++		    }
++		    if(!ret) {
++		      printf("failed to parse qdisc\r\n");
++		      return 0;
++		    }
++		    break;
++		  }
++		  else {
+ 			invarg_1_to_2(*argv, "command");
+ 		}
+ 		NEXT_ARG();
++		arg = index_in_substrings(args, *argv);
+ 		if (arg == ARG_root) {
+-			if (msg.tcm_parent)
++			if (req.t.tcm_parent)
+ 				duparg("parent", *argv);
+-			msg.tcm_parent = TC_H_ROOT;
++			req.t.tcm_parent = TC_H_ROOT;
+ 			if (obj == OBJ_filter)
+ 				filter_parent = TC_H_ROOT;
+ 		} else
+ 		if (arg == ARG_parent) {
+ 			uint32_t handle;
+-			if (msg.tcm_parent)
++			if (req.t.tcm_parent)
+ 				duparg(*argv, "parent");
+ 			if (get_tc_classid(&handle, *argv))
+ 				invarg_1_to_2(*argv, "parent");
+-			msg.tcm_parent = handle;
++			req.t.tcm_parent = handle;
+ 			if (obj == OBJ_filter)
+ 				filter_parent = handle;
+ 		} else
+ 		if (arg == ARG_handle) { /* filter::list */
+-			if (msg.tcm_handle)
++			if (req.t.tcm_handle)
+ 				duparg(*argv, "handle");
+ 			/* reject LONG_MIN || LONG_MAX */
+ 			/* TODO: for fw
+@@ -584,7 +779,7 @@ int tc_main(int argc UNUSED_PARAM, char **argv)
+ 			if (slash != NULL)
+ 				*slash = '\0';
+ 			 */
+-			msg.tcm_handle = get_u32(*argv, "handle");
++			req.t.tcm_handle = get_u32(*argv, "handle");
+ 			/* if (slash) {if (get_u32(uint32_t &mask, slash+1, NULL)) inv mask; addattr32(n, MAX_MSG, TCA_FW_MASK, mask); */
+ 		} else
+ 		if (arg == ARG_classid
+@@ -606,14 +801,22 @@ int tc_main(int argc UNUSED_PARAM, char **argv)
+ 				invarg_1_to_2(*argv, "protocol");
+ 			filter_proto = tmp;
+ 		}
++		argv++;
+ 	}
+ 
+-	if (cmd >= CMD_show) { /* show or list */
++	if(obj == OBJ_qdisc && cmd == CMD_add) {
++	  req.n.nlmsg_type = RTM_NEWQDISC;
++	  req.n.nlmsg_flags |= NLM_F_EXCL|NLM_F_CREATE;
++	  if (rtnl_talk(&rth, &req.n, 0, 0, NULL, NULL, NULL) < 0) {
++	    bb_simple_perror_msg_and_die("can't send add qdisc request");
++	  }
++  	} else
++	  if (cmd >= CMD_show) { /* show or list */
+ 		if (obj == OBJ_filter)
+-			msg.tcm_info = TC_H_MAKE(filter_prio<<16, filter_proto);
++			req.t.tcm_info = TC_H_MAKE(filter_prio<<16, filter_proto);
+ 		if (rtnl_dump_request(&rth, obj == OBJ_qdisc ? RTM_GETQDISC :
+ 						obj == OBJ_class ? RTM_GETTCLASS : RTM_GETTFILTER,
+-						&msg, sizeof(msg)) < 0)
++						&req.t, sizeof(req.t)) < 0)
+ 			bb_simple_perror_msg_and_die("can't send dump request");
+ 
+ 		xrtnl_dump_filter(&rth, obj == OBJ_qdisc ? print_qdisc :
+-- 
+2.7.4
+

@@ -156,7 +156,7 @@ def count(expr, target):
 
 @pytest.mark.parametrize("expr, target, sum", [
     ("0&0&0&0&0", True, 0),
-    ("0&0&0&0&0", False, 18)
+    ("0&0&0&0&0", False, 18),
 ])
 def test_bool_eval(expr, target, sum):
     assert count(expr, target) == sum
