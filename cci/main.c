@@ -18,6 +18,7 @@
 #include "chapter_three.h"
 #include "chapter_four.h"
 #include "chapter_nine.h"
+#include "chapter_ten.h"
 #include "hard.h"
 
 static p_list create_random_integer_list(unsigned len) {
@@ -298,6 +299,12 @@ static void test_chapter_nine() {
   return;
 }
 
+
+static void test_chapter_ten() {
+  test_merge_sort();
+  return;
+}
+
 static void test_hard() {
   {
     unsigned a = 10; unsigned b = 20;
@@ -305,6 +312,7 @@ static void test_hard() {
     assert(a == 20 && b == 10);
   }
 }
+
 int main() {
   srand(time(0));
   if (0) {
@@ -329,6 +337,7 @@ int main() {
   test_chapter_four();
   }
   test_chapter_nine();
+  test_chapter_ten();
   if(0) {
     test_hard();
   }
