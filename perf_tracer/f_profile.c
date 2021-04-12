@@ -19,6 +19,9 @@ typedef struct thread_arg {
 } thread_arg;
 
 pthread_barrier_t   barrier; // the barrier synchronization object
+unsigned flag = 0;
+uint32_t total_rate;
+int profile_fd = -1;
 
 static uint64_t get_time() {
 	uint64_t ms;
@@ -39,7 +42,7 @@ static uint64_t get_time() {
 
 void* read_data(void *arg) {
 	int s;
-	volatile char val;
+	char val[256];
 	pthread_t thread;
 	thread_arg *thread_arg = arg;
 	const char *filepath = thread_arg->filepath;
@@ -52,14 +55,6 @@ void* read_data(void *arg) {
 		perror("Error set thread  affinity");
 		return NULL;
 	}
-
-	/*
-	  wait all worker thread reach same point
-	  and the manager thread should enable
-	  function_profile already
-	 */
-	pthread_barrier_wait(&barrier);
-	start = get_time();
 
 	int fd = open((char*)filepath, O_RDONLY, (mode_t)0600);
 
@@ -83,8 +78,6 @@ void* read_data(void *arg) {
 		return NULL;
 	}
 
-	//printf("File size is %ji\n", (intmax_t)fileInfo.st_size);
-
 
 	char *map = mmap(0, fileInfo.st_size, PROT_READ, MAP_SHARED, fd, 0);
 	if (map == MAP_FAILED)
@@ -94,12 +87,30 @@ void* read_data(void *arg) {
 		return NULL;
 	}
 
-	for (off_t i = 0; i < fileInfo.st_size; i++)
+	/*
+	  wait all worker thread reach same point
+	  and the manager thread should enable
+	  function_profile already
+	 */
+	pthread_barrier_wait(&barrier);
+	start = get_time();
+
+	off_t i;
+	for (i = 0; i < fileInfo.st_size; i+=256)
 	{
-		//printf("Found character %c at %ji\n", map[i], (intmax_t)i);
-		val |= map[i];
+	  memcpy(val, &map[i], 256);
+	  if(flag == 1) {
+	    break;
+	  }
 	}
 
+	if(flag == 0) {
+	  /* disable function_profile*/
+	  write(profile_fd, "0", 1);
+	  flag = 1;
+	  __sync_synchronize();
+	}
+	stop = get_time();
 	// Don't forget to free the mmapped memory
 	if (munmap(map, fileInfo.st_size) == -1)
 	{
@@ -108,12 +119,10 @@ void* read_data(void *arg) {
 		return NULL;
 	}
 
-	stop = get_time();
-
-
-	printf("do read io in %.3f second, rate %d MBytes/second\n", (stop-start)/1.0e3,
-	       (int)round(fileInfo.st_size/((stop-start)*1.0e3)));
-
+	//printf("start at %lu, stop at %lu\n", start, stop);
+	uint32_t rate = (int)round(i/((stop-start)*1.0e3));
+	printf("do read io in %.3f second, rate %d MBytes/second\n", (stop-start)/1.0e3, rate);
+	total_rate += rate;
 	// Un-mmaping doesn't close the file, so we still need to do that.
 	close(fd);
 	return NULL;
@@ -126,7 +135,7 @@ int main(int argc, const char *argv[])
 
 	const char *debugfs = "/sys/kernel/debug";
 	char path[256];
-	int profile_fd = -1;
+
 	thread_arg *args;
 	pthread_t *threads;
 
@@ -144,7 +153,7 @@ int main(int argc, const char *argv[])
 
 	for(int i = 0; i < cpu_num; ++i) {
 		char *ptr;
-		args[i].filepath = "/home/zjw/tmp/mmapped1.bin";
+		args[i].filepath = "/home/zjw/tmp/mmapped.bin";
 		if( i != cpu_num -1) {
 			ptr = strchr(cpu_list, ',');
 			*ptr ='\0';
@@ -170,20 +179,19 @@ int main(int argc, const char *argv[])
 		pthread_create(&threads[i], NULL, read_data, (void*)&args[i]);
 	}
 
-	/* enable function_profile*/
-	write(profile_fd, "1", 1);
 
 	/* ensure all worker thread start at same time */
 	pthread_barrier_wait(&barrier);
+
+	/* enable function_profile*/
+	write(profile_fd, "1", 1);
 
 	for(int i = 0; i < cpu_num; ++i) {
 		pthread_join(threads[i], NULL);
 	}
 
-	/* disable function_profile*/
-	write(profile_fd, "0", 1);
-
-err:
+	printf("total rate %u MBytes/second\n", total_rate);
+ err:
 	close(profile_fd);
 	return 0;
 }
