@@ -8,13 +8,15 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include <pthread.h>
 #include <sched.h>
 #include <math.h>
 
 typedef struct thread_arg {
-	const char *filepath;
+        char filepath[32];
+        char name[16];
 	cpu_set_t  cpuset;
 } thread_arg;
 
@@ -42,15 +44,18 @@ static uint64_t get_time() {
 
 void* read_data(void *arg) {
 	int s;
-	char val[256];
+	char val[1024];
 	pthread_t thread;
 	thread_arg *thread_arg = arg;
 	const char *filepath = thread_arg->filepath;
 	cpu_set_t  *cpuset = &thread_arg->cpuset;
 	uint64_t start, stop;
+	unsigned enabled_flag = 0;
+	unsigned disabled_flag = 1;
 
 	thread = pthread_self();
 	s = pthread_setaffinity_np(thread, sizeof(cpu_set_t), cpuset);
+	pthread_setname_np(thread, thread_arg->name);
 	if (s != 0) {
 		perror("Error set thread  affinity");
 		return NULL;
@@ -61,6 +66,7 @@ void* read_data(void *arg) {
 	if (fd == -1)
 	{
 		perror("Error opening file for reading");
+		perror(filepath);
 		return NULL;
 	}
 
@@ -96,20 +102,17 @@ void* read_data(void *arg) {
 	start = get_time();
 
 	off_t i;
-	for (i = 0; i < fileInfo.st_size; i+=256)
+	for (i = 0; i < fileInfo.st_size; i+=1024)
 	{
-	  memcpy(val, &map[i], 256);
+	  memcpy(val, &map[i], 1024);
 	  if(flag == 1) {
 	    break;
 	  }
 	}
 
-	if(flag == 0) {
-	  /* disable function_profile*/
-	  write(profile_fd, "0", 1);
-	  flag = 1;
-	  __sync_synchronize();
-	}
+	if(__atomic_compare_exchange(&flag, &enabled_flag, &disabled_flag, true, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
+	  printf("trigger another exit\n");
+	
 	stop = get_time();
 	// Don't forget to free the mmapped memory
 	if (munmap(map, fileInfo.st_size) == -1)
@@ -119,7 +122,6 @@ void* read_data(void *arg) {
 		return NULL;
 	}
 
-	//printf("start at %lu, stop at %lu\n", start, stop);
 	uint32_t rate = (int)round(i/((stop-start)*1.0e3));
 	printf("do read io in %.3f second, rate %d MBytes/second\n", (stop-start)/1.0e3, rate);
 	total_rate += rate;
@@ -153,7 +155,8 @@ int main(int argc, const char *argv[])
 
 	for(int i = 0; i < cpu_num; ++i) {
 		char *ptr;
-		args[i].filepath = "/home/zjw/tmp/mmapped.bin";
+		sprintf(args[i].filepath, "/home/zjw/tmp/mmapped%d.bin", i+1);
+		sprintf(args[i].name, "f_profile%d", i);
 		if( i != cpu_num -1) {
 			ptr = strchr(cpu_list, ',');
 			*ptr ='\0';
@@ -184,7 +187,7 @@ int main(int argc, const char *argv[])
 	pthread_barrier_wait(&barrier);
 
 	/* enable function_profile*/
-	write(profile_fd, "1", 1);
+	//write(profile_fd, "1", 1);
 
 	for(int i = 0; i < cpu_num; ++i) {
 		pthread_join(threads[i], NULL);
