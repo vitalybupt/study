@@ -172,7 +172,8 @@ export class SDP {
       onMessageComplete: p.code.match('llsdp__on_message_complete'),
       onChunkHeader: p.code.match('llsdp__on_chunk_header'),
       onChunkComplete: p.code.match('llsdp__on_chunk_complete'),
-
+	onSessionDescriptionEntryComplete: p.code.match('llsdp__on_session_description_entry_complete'),
+	
       // Internal callbacks `src/sdp.c`
       beforeHeadersComplete:
         p.code.match('llsdp__before_headers_complete'),
@@ -429,8 +430,8 @@ export class SDP {
 	const p = this.lparse;
 	const n = (name: string): Match => this.node<Match>(name);
 
-	n('session_level_description_type')
-	    .match('v=', n('proto_version'))
+	n('session_description_type')
+	    .match('v=', n('sdp_proto_version'))
 	    .match('o=', n('originator_identifier'))
 	    .match('s=', n('session_name_'))
 	    .match('i=', n('session_information'))
@@ -438,7 +439,22 @@ export class SDP {
 	    .match('e=', n('email'))
 	    .match('c=', n('conection_info'))
 	    .match('b=', n('bandwidth'))
+	    .otherwise(p.error(ERROR.INVALID_TYPE, 'Invalid description type'));
+
+	// sdp protocol version only include major
+	n('sdp_proto_version')
+	    .select(MAJOR, this.store('sdp_major', 'sdp_version_complete'))
+	    .otherwise(p.error(ERROR.INVALID_VERSION, 'Invalid major version'));
+
+	n('sdp_version_complete')
+	    .match([ '\r\n', '\n' ], n('session_description_type'))
+	    .otherwise(p.error(ERROR.INVALID_VERSION, 'Expected CRLF after version'));
+
+	const onSessionDescriptionTypeComplete = p.invoke(this.callback.onSessionDescriptionTypeComplete);
+	onSessionDescriptionTypeComplete.otherwise(n('session_description_type'));
+
     }
+    
     
   private buildHeaderValue(): void {
     const p = this.llparse;
@@ -676,6 +692,17 @@ export class SDP {
      * We'd like to use CALLBACK_NOTIFY_NOADVANCE() here but we cannot, so
      * we have to simulate it by handling a change in errno below.
      */
+      /*
+	call p.code.match('llsdp__on_headers_complete')
+	which will call function llsdp__on_headers_complete() in api.c
+	
+	llsdp__on_headers_complete() will call user provided callback
+	'on_headers_complete' if provided.
+
+	the return value of on_headers_complte() will be matched with 
+	arguments defined here
+	if return 0 turn to 'headers_done'
+       */
     const onHeadersComplete = p.invoke(callback.onHeadersComplete, {
       0: n('headers_done'),
       1: this.setFlag(FLAGS.SKIPBODY, 'headers_done'),
