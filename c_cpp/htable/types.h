@@ -23,4 +23,7 @@ typedef int8_t  s8;
 #endif
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr)[0])
+
+#define container_of(ptr, type, member) ((type *)((char *)ptr - offsetof(type, member)))
+
 #endif
